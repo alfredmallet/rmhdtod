@@ -6,7 +6,7 @@ program tod
 
 use init
 use mp
-!use transforms
+use transforms
 use grid
 use diag
 !use forcing
@@ -23,11 +23,12 @@ character(len=10) :: itstr
 character(len=10) :: procstr
 character(len=100) :: datadir="data"
 
-!temporary - until mpi is done
-!write(procstr,"(I0)") iproc
-!write(*,*) "procstr",procstr
 !********** Initialization **********
+
 call init_mp
+call init_grid
+call init_transforms
+
 call getarg(1,runname)
 inputfile=trim(runname)//".in"
 call read_parameters(inputfile)
@@ -39,7 +40,9 @@ allocate(zm(nlx,nly_par,nlz_par))
 
 allocate(zpk(nky,nkx_par,nlz_par))
 allocate(zmk(nky,nkx_par,nlz_par))
-write(*,*) nlx,nly_par,nlz_par
+
+!***** Setting initial fields, if required *****
+
 if (initfield.eq."wave") then
     if (proc0) then
         write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes"
@@ -47,8 +50,7 @@ if (initfield.eq."wave") then
     do k=1,nlz_par
         do j=1,nly_par
             do i=1,nlx
-                zp(i,j,k)=ampzp*sin(2*pi*kip(3)*zz(k)/lz)
-!(2.*pi*(kip(1)*xx(i)/lx+kip(2)*yy(j)/ly+kip(3)*zz(k)/lz))
+                zp(i,j,k)=ampzp*sin(2.*pi*(kip(1)*xx(i)/lx+kip(2)*yy(j)/ly+kip(3)*zz(k)/lz))
                 zm(i,j,k)=ampzm*sin(2.*pi*(kim(1)*xx(i)/lx+kim(2)*yy(j)/ly+kim(3)*zz(k)/lz))
             end do
         end do
@@ -61,30 +63,13 @@ endif
 !TODO: other initfield options, like "norm"
 call barrier
 
-do ip=0,npperp*npz-1
-  if (iproc==ip) then
-    write(*,*) "iproc",ip,"xx"
-    do i=1,nlx
-    write(*,*) xx(i)/lx
-    end do
-  endif
-  call barrier
-end do
-
-do ip=0,npperp*npz-1
-  if (iproc==ip) then
-    write(*,*) "iproc",ip,"yy"
-    do j=1,nly_par
-    write(*,*) yy(j)/ly
-    end do
-  endif
-  call barrier
-end do
-do ip=0,npperp*npz-1
-  if (iproc==ip) then
-    write(*,*) "iproc",ip, "zz"
-    do k=1,nlz_par
-    write(*,*) zz(k)/lz,sin(2*pi*zz(k)/lz),zp(1,1,k)
+!TEMP: testing forward fft
+fft(zp,zpk)
+do ip=0,nproc-1
+  if (iproc.eq.ip) then
+    write(*,*) ip
+    do i=1,nkx_par
+      write(*,*) kx(i), zpk(i,1,1)
     end do
   endif
   call barrier
