@@ -55,10 +55,41 @@ end subroutine init_grid
 
 function proc_id_r(r_variable,j,zk)
 ! returns proc no. which has j,zk for a realspace variable
-  use constants, only:nlz_par, NPE
+  use constants, only:nlz_par, npperp
   implicit none
   integer :: proc_id_r
-  type (r_layout_type),intent(in) :: r_variable
+  type (r_layout_type), intent(in) :: r_variable
+  integer, intent(in) :: j,zk
+  proc_id_r = (j-1)/r_variable%nly_par + (zk-1)/nlz_par*npperp
+end function proc_id_r
+
+function proc_id_k(k_variable,i,zk)
+! returns proc no. which has i,zk for a kspace variable
+  use constants, only: nlz_par,npperp
+  implicit none
+  integer :: proc_id_k
+  type (k_layout_type), intent(in) :: k_variable
+  integer, intent(in) :: i,zk
+  proc_id_k = (i-1)/k_variable%Nkx_par + (zk-1)/nlz_par*npperp
+end function proc_id_k
+
+function idx_local_r(r,j,zk)
+! returns bool based on whether the proc contains j,zk for realspace variable
+  implicit none
+  logical :: idx_local_r
+  type (r_layout_type), intent(in) :: r
+  integer, intent(in) :: j,zk
+  idx_local_r = r%iproc == proc_id(r,j,zk)
+end function idx_local_r
+
+function idx_local_k (k, i, zk)
+! returns bool based on whether the proc contains i,zk for kspace variable
+  implicit none
+  logical :: idx_local_k
+  type (k_layout_type), intent (in) :: k
+  integer, intent (in) :: i, zk
+  idx_local_k = k%iproc == proc_id(k, i, zk)
+end function idx_local_k
 
 real function xx(i)
 ! returns x value corresponding to i index in the real space grid
@@ -101,5 +132,31 @@ integer function kglobal(k)
     integer :: k
     kglobal=k+(iproc/npperp)*nlz_par
 end function kglobal
+
+real function kx(i)
+  use constants, only: npperp,nkx_par
+  use mp, only: iproc
+  implicit none
+  integer :: i,iglobal
+  iglobal = mod(iproc,npperp)*nkx_par+i
+  kx=iglobal-1.
+end function kx
+
+real function ky(j)
+  use constants, only: nky,lx,ly
+  implicit none
+  integer :: j
+  if (j<=nky/2+1) then
+    ky=(j-1.)*lx/ly
+  else
+    ky=(j-nky-1.)*lx/ly
+  endif
+end function ky
+
+real function kperp(j,i)
+  implicit none
+  integer :: j,i
+  kperp=sqrt(ky(j)**2+kx(i)**2)
+end function kperp
 
 end module grid
