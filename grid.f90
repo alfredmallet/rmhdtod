@@ -11,13 +11,13 @@ end interface
 
 type :: r_layout_type
    integer :: iproc
-   integer :: NLx, NLy, NLy_par
+   integer :: nlx, nly, nly_par
    integer :: llim_world, ulim_world, llim_proc, ulim_proc
 end type r_layout_type
 
 type :: k_layout_type
    integer :: iproc
-   integer :: NKx, NKy, NKx_par
+   integer :: nkx, nky, NKx_par
    integer :: llim_world, ulim_world, llim_proc, ulim_proc
 end type k_layout_type
 
@@ -29,7 +29,7 @@ contains
 subroutine init_grid
 
   use mp,only: iproc
-  use constants
+  use init
   implicit none
   logical, save :: initialized = .false.
 
@@ -55,7 +55,7 @@ end subroutine init_grid
 
 function proc_id_r(r_variable,j,zk)
 ! returns proc no. which has j,zk for a realspace variable
-  use constants, only:nlz_par, npperp
+  use init, only:nlz_par, npperp
   implicit none
   integer :: proc_id_r
   type (r_layout_type), intent(in) :: r_variable
@@ -65,12 +65,12 @@ end function proc_id_r
 
 function proc_id_k(k_variable,i,zk)
 ! returns proc no. which has i,zk for a kspace variable
-  use constants, only: nlz_par,npperp
+  use init, only: nlz_par,npperp
   implicit none
   integer :: proc_id_k
   type (k_layout_type), intent(in) :: k_variable
   integer, intent(in) :: i,zk
-  proc_id_k = (i-1)/k_variable%Nkx_par + (zk-1)/nlz_par*npperp
+  proc_id_k = (i-1)/k_variable%nkx_par + (zk-1)/nlz_par*npperp
 end function proc_id_k
 
 function idx_local_r(r,j,zk)
@@ -134,7 +134,7 @@ integer function kglobal(k)
 end function kglobal
 
 real function kx(i)
-  use constants, only: npperp,nkx_par
+  use init, only: npperp,nkx_par
   use mp, only: iproc
   implicit none
   integer :: i,iglobal
@@ -143,7 +143,7 @@ real function kx(i)
 end function kx
 
 real function ky(j)
-  use constants, only: nky,lx,ly
+  use init, only: nky,lx,ly
   implicit none
   integer :: j
   if (j<=nky/2+1) then

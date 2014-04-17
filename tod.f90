@@ -25,10 +25,6 @@ character(len=100) :: datadir="data"
 
 !********** Initialization **********
 
-call init_mp
-call init_grid
-call init_transforms
-
 call getarg(1,runname)
 inputfile=trim(runname)//".in"
 call read_parameters(inputfile)
@@ -41,6 +37,12 @@ allocate(zm(nlx,nly_par,nlz_par))
 allocate(zpk(nky,nkx_par,nlz_par))
 allocate(zmk(nky,nkx_par,nlz_par))
 
+call init_mp
+call init_grid
+call init_transforms
+
+if (proc0) write(*,*) "nlx,nly,nlz=", nlx,nly,nlz
+if (proc0) write(*,*) "nly_par,nkx_par,nlz_par=",nly_par,nkx_par,nlz_par
 !***** Setting initial fields, if required *****
 
 if (initfield.eq."wave") then
@@ -62,9 +64,13 @@ endif
 
 !TODO: other initfield options, like "norm"
 call barrier
-
+write(*,*) "Time to testfft"
 !TEMP: testing forward fft
-fft(zp,zpk)
+do k=1,nlz_par
+  write(*,*) k,"th fft"
+  call fft(zp(:,:,k),zpk(:,:,k))
+end do
+write(*,*) "fft done"
 do ip=0,nproc-1
   if (iproc.eq.ip) then
     write(*,*) ip

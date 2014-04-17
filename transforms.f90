@@ -36,7 +36,6 @@ subroutine init_redistribute
   
   if (initialized) return
   initialized=.true.
-
   !counts elements that need to go to/from each proc
   nn_to=0
   nn_from=0
@@ -46,7 +45,7 @@ subroutine init_redistribute
         if (idx_local(r_variable,j,k)) &
           nn_from(proc_id(k_variable,i,k))=nn_from(proc_id(k_variable,i,k))+1
         if (idx_local(k_variable,i,k)) &
-          nn_to(proc_id(r_variable,j,k))=nn_to(proc_id(r_variable,j,k)+1
+          nn_to(proc_id(r_variable,j,k))=nn_to(proc_id(r_variable,j,k))+1
       end do
     end do
   end do
@@ -61,7 +60,7 @@ subroutine init_redistribute
       allocate(to_list(ip)%second(nn_to(ip)))
     endif
   end do
-
+  
   ! get local indices of the elements that will go to/from other procs
   nn_to=0
   nn_from=0
@@ -85,7 +84,7 @@ subroutine init_redistribute
       end do
     end do
   end do
-
+  
   from_low(1)=1
   from_low(2)=1
 
@@ -114,22 +113,25 @@ subroutine fft(array,arrayk)
   use grid, only: kx,ky,kperp
   implicit none
   real, dimension(:,:) :: array
-  real, dimension(:,:) :: arrayk
+  complex, dimension(:,:) :: arrayk
   complex, allocatable, dimension(:,:) :: array_temp, ak
-
+  integer :: i,j
   allocate(array_temp(nlx/2+1,nly_par))
   allocate(ak(nly,nkx_par))
   array_temp=0.0
   ak=0.0
-
+  write(*,*) "xfft"
   call xfft(array,array_temp)
+  write(*,*) "xfft done"
   ! Hou-Li filtering
   do i=1,nkx
     array_temp(i,:)=array_temp(i,:)*exp(-36.0*((i*1.0-1.0)/((nkx-1)*1.0))**36)
   end do
+  write(*,*) "gathering"
   call gather(r2k,array_temp,ak)
-
+  write(*,*) "yfft"
   call yfft(ak)
+  write(*,*) "yfft done"
   ! Hou-Li filtering
   do j=1,nky
     arrayk(j,:)=ak(j,:)*exp(-36.0*(abs(ky(j))/(nky/2.*lx/ly))**36)
@@ -162,7 +164,7 @@ subroutine xfft(array,ak)
   call rfftwnd_f77_real_to_complex(iplan_x2k,jmax,array,1,imax,ak,1,imax/2+1)
   ak=ak*scale
 
-end subroutine xfft(array,ak)
+end subroutine xfft
 
 subroutine yfft(ak)
 ! does the fft in the y direction
@@ -170,12 +172,13 @@ subroutine yfft(ak)
   implicit none
   complex, dimension(:,:) :: ak
   logical, save :: first = .true.
+  complex :: dummy
   real, save :: scale
   integer :: imax,jmax
 
   if (first) then
     iplan_y2k=10 ! do fft in place
-    call init_ccfftw(ffty2k,-1,imax,iplan_y2k)
+    call init_ccfftw(fft_y2k,-1,imax,iplan_y2k)
     scale = 1./sqrt(real(imax))
     first=.false.
   end if
