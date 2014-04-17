@@ -53,6 +53,26 @@ subroutine init_grid
 
 end subroutine init_grid
 
+subroutine test_grid
+  use init
+  implicit none
+  integer i,j,k
+  if (iproc==0) then
+  open(30,file="rgrids.dat")
+  open(40,file="kgrids.dat")
+  do k=1,nlz
+    do j=1,nly
+      do i=1,nlx
+        write(30,*) i,j,k,proc_id(r_variable,j,k)
+        write(40,*) i,j,k,proc_id(k_variable,i,k)
+      end do
+    end do
+  end do
+  close(30)
+  close(40)
+  endif
+end subroutine test_grid
+
 function proc_id_r(r_variable,j,zk)
 ! returns proc no. which has j,zk for a realspace variable
   use init, only:nlz_par, npperp

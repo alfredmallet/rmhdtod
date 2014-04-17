@@ -8,9 +8,9 @@ ly=1.0
 lz=1.0
 nlx=32
 nly=32
-nlz=32
+nlz=24
 npperp=4
-npz=4
+npz=3
 /
 
 &time_parameters
