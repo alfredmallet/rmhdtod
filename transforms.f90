@@ -41,7 +41,7 @@ subroutine init_redistribute
   nn_from=0
   do k=1,nlz
     do j=1,nly
-      do i=1,nlx
+      do i=1,nkx
         if (idx_local(r_variable,j,k)) &
           nn_from(proc_id(k_variable,i,k))=nn_from(proc_id(k_variable,i,k))+1
         if (idx_local(k_variable,i,k)) &

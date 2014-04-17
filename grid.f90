@@ -55,14 +55,15 @@ end subroutine init_grid
 
 subroutine test_grid
   use init
+  use mp, only: iproc
   implicit none
-  integer i,j,k
+  integer :: i,j,k
   if (iproc==0) then
   open(30,file="rgrids.dat")
   open(40,file="kgrids.dat")
   do k=1,nlz
     do j=1,nly
-      do i=1,nlx
+      do i=1,nkx
         write(30,*) i,j,k,proc_id(r_variable,j,k)
         write(40,*) i,j,k,proc_id(k_variable,i,k)
       end do
