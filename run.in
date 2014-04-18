@@ -28,8 +28,12 @@ nu=3
 ampzp=1.
 ampzm=0.5
 initfield="wave"
-kip=(/1.0,0.0,1.0/)
-kim=(/0.0,1.0,1.0/)
+kipx=1.0
+kipy=0.0
+kipz=1.0
+kimx=0.0
+kimy=1.0
+kimz=1.0
 /
 
 &force_parameters

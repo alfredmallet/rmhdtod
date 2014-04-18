@@ -43,13 +43,13 @@ call init_transforms
 
 if (initfield.eq."wave") then
     if (proc0) then
-        write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes, kip=",kip,"kim=",kim,"ampzp=",ampzp,"ampzm=",ampzm
+        write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes, kip=",kipx,kipy,kipz,"kim=",kimx,kimy,kimz,"ampzp=",ampzp,"ampzm=",ampzm
     endif
     do k=1,nlz_par
         do j=1,nly_par
             do i=1,nlx
-                zp(i,j,k)=ampzp*sin(2.*pi*(kip(1)*xx(i)/lx+kip(2)*yy(j)/ly+kip(3)*zz(k)/lz))
-                zm(i,j,k)=ampzm*sin(2.*pi*(kim(1)*xx(i)/lx+kim(2)*yy(j)/ly+kim(3)*zz(k)/lz))
+                zp(i,j,k)=ampzp*sin(2.*pi*(kipx*xx(i)/lx+kipy*yy(j)/ly+kipz*zz(k)/lz))
+                zm(i,j,k)=ampzm*sin(2.*pi*(kimx*xx(i)/lx+kimy*yy(j)/ly+kimz*zz(k)/lz))
             end do
         end do
     end do
@@ -62,13 +62,11 @@ endif
 !TEMP: testing forward fft
 do k=1,nlz_par
   call fft(zp(:,:,k),zpk(:,:,k))
+  call fft(zm(:,:,k),zmk(:,:,k))
 end do
 do ip=0,nproc-1
   if (iproc.eq.ip) then
-    write(*,*) ip
-    do j=1,nky
-      write(*,*) ky(j), zpk(j,1,1)
-    end do
+    write(*,*) iproc,size(zpk,1),size(zpk,2),size(zpk,3)
   endif
   call barrier
 end do
@@ -80,6 +78,7 @@ if ((ifields.gt.0).and.(mod(it,ifields).eq.0)) then
     write(itstr,"(I0)") it
     filename="snap"//trim(itstr)//".dat"
     call savesnap(filename,zp,zm)
+    call saveksnap("k"//filename,zpk,zmk)
 endif
 
 end program tod

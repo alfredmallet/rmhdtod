@@ -19,8 +19,8 @@ integer :: hyper_order=3
 real :: nu=0.0
 !start
 real :: ampzp=1.0,ampzm=0.5
-character(len=4) :: initfield="norm"
-real, dimension(3) :: kip=(/1.0,0.0,1.0/),kim=(/0.0,1.0,1.0/)
+character(len=4) :: initfield="wave"
+real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
 logical :: turb=.true.
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
@@ -51,7 +51,7 @@ subroutine read_parameters(inputfile)
     namelist /box_parameters/ lx,ly,lz,nlx,nly,nlz,npperp,npz
     namelist /time_parameters/ tmax, imax,cfl_frac
     namelist /diss_parameters/ hyper_order,nu
-    namelist /start_parameters/ ampzp,ampzm,initfield,kip,kim
+    namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ turb,kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, ifields, tspec, tfields
     namelist /restart_parameters/ restart,rsfile,rspath
@@ -73,10 +73,10 @@ subroutine read_parameters(inputfile)
             write(*,*) "hyper_order,nu=", hyper_order,nu
         endif
     read(10,nml=start_parameters,iostat=ierr)
-        !if(ierr /= 0) then
-         !   write(*,*) "Reading start_parameters failed"
-          !  write(*,*) "ampzp,ampzm,initfield,kip,kim=", ampzp,ampzm,initfield,kip,kim
-        !endif
+        if(ierr /= 0) then
+            write(*,*) "Reading start_parameters failed"
+            write(*,*) "ampzp,ampzm,initfield,kip,kim=", ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
+        endif
     read(10,nml=force_parameters,iostat=ierr)
         if(ierr /= 0) then
             write(*,*) "Reading force_parameters failed"
