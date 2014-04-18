@@ -49,14 +49,7 @@ subroutine init_redistribute
       end do
     end do
   end do
-do ip=0,nproc-1
-if (ip.eq.iproc) then 
-write(*,*) "iproc",iproc
-write(*,*) nn_to
-write(*,*) nn_from
-endif
-call barrier
-end do
+  
   do ip=0,nproc-1
     if (nn_from(ip)>0) then
       allocate(from_list(ip)%first(nn_from(ip)))
@@ -102,10 +95,7 @@ end do
 
   from_high(1)=nlx/2+1
   from_high(2)=nly_par
-!  do ip=0,nproc-1
-! if (ip.eq.iproc) write(*,*) "rediststuff",iproc,to_low,to_high,from_low,from_high,"t",to_list(iproc)%first,"f",from_list(iproc)%first,"end"
-!call barrier
-!end do
+  
   call init_redist(r2k,'c',to_low,to_high,to_list,from_low,from_high,from_list)
 
   call delete_list(to_list)
@@ -126,22 +116,22 @@ subroutine fft(array,arrayk)
   complex, dimension(:,:) :: arrayk
   complex, allocatable, dimension(:,:) :: array_temp, ak
   integer :: i,j
+  
   allocate(array_temp(nlx/2+1,nly_par))
   allocate(ak(nly,nkx_par))
+  
   array_temp=0.0
   ak=0.0
-  write(*,*) "xfft"
+  
   call xfft(array,array_temp)
-  write(*,*) "xfft done"
   ! Hou-Li filtering
   do i=1,nkx
     array_temp(i,:)=array_temp(i,:)*exp(-36.0*((i*1.0-1.0)/((nkx-1)*1.0))**36)
   end do
-  write(*,*) "gathering"
+  
   call gather(r2k,array_temp,ak)
-  write(*,*) "yfft"
+  
   call yfft(ak)
-  write(*,*) "yfft done"
   ! Hou-Li filtering
   do j=1,nky
     arrayk(j,:)=ak(j,:)*exp(-36.0*(abs(ky(j))/(nky/2.*lx/ly))**36)
@@ -185,6 +175,9 @@ subroutine yfft(ak)
   complex :: dummy
   real, save :: scale
   integer :: imax,jmax
+
+  imax=size(ak,1)
+  jmax=size(ak,2)
 
   if (first) then
     iplan_y2k=10 ! do fft in place

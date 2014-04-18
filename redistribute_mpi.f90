@@ -388,8 +388,7 @@ contains
                         r%to_low(2):), intent (out) :: to_here
 
     integer :: i, idp, ipto, ipfrom, iadp
-    write(*,*) "c1"
-    write(*,*) "iproc", iproc, r%to_low,"tolist", r%to(iproc)%nn, "f", r%from_low, "fromlist", r%from(iproc)%nn
+    
     ! redistribute from local processor to local processor
     do i = 1, r%from(iproc)%nn
        to_here(r%to(iproc)%k(i),&
@@ -397,11 +396,11 @@ contains
                = from_here(r%from(iproc)%k(i), &
                            r%from(iproc)%l(i))
     end do
-    write(*,*) "c2"
+    
     ! redistribute to idpth next processor from idpth preceding processor
     ! or redistribute from idpth preceding processor to idpth next processor
     ! to avoid deadlocks
-    !write(*,*) iproc, nproc
+    
     do idp = 1, nproc-1
        !if (iproc==0) then
          !write(*,*) idp
@@ -418,16 +417,12 @@ contains
                 r%complex_buff(i) = from_here(r%from(ipto)%k(i), &
                                               r%from(ipto)%l(i))
              end do
-             write(*,*) "sendcall"
              call send (r%complex_buff(1:r%from(ipto)%nn), ipto, idp)
-             write(*,*) "callsent"
           end if
 
           ! receive from idpth preceding processor
           if (r%to(ipfrom)%nn > 0) then
-             write(*,*) "reccall"
              call receive (r%complex_buff(1:r%to(ipfrom)%nn), ipfrom, idp)
-             write(*,*) "callrecd"
              do i = 1, r%to(ipfrom)%nn
                 to_here(r%to(ipfrom)%k(i), &
                         r%to(ipfrom)%l(i)) &
@@ -437,9 +432,7 @@ contains
        else
           ! receive from idpth preceding processor
           if (r%to(ipfrom)%nn > 0) then
-             write(*,*) "reccall2"
              call receive (r%complex_buff(1:r%to(ipfrom)%nn), ipfrom, idp)
-             write(*,*) "callrecd2"
              do i = 1, r%to(ipfrom)%nn
                 to_here(r%to(ipfrom)%k(i), &
                         r%to(ipfrom)%l(i)) &
@@ -453,13 +446,10 @@ contains
                 r%complex_buff(i) = from_here(r%from(ipto)%k(i), &
                                               r%from(ipto)%l(i))
              end do
-             write(*,*) "sendcall2"
              call send (r%complex_buff(1:r%from(ipto)%nn), ipto, idp)
-             write(*,*) "callsent2"
           end if
        end if
     end do
-  write(*,*) "cend"
   end subroutine c_redist_22
 
   subroutine c_redist_22_inv (r, from_here, to_here)

@@ -28,9 +28,7 @@ character(len=100) :: datadir="data"
 call getarg(1,runname)
 inputfile=trim(runname)//".in"
 call read_parameters(inputfile)
-if (proc0) then
-    write(*,*) "Read in parameters: lx,ly,lz,nlx,nly,nlz,npperp,npz=",lx,ly,lz,nlx,nly,nlz,npperp,npz
-endif
+
 allocate(zp(nlx,nly_par,nlz_par))
 allocate(zm(nlx,nly_par,nlz_par))
 
@@ -40,14 +38,12 @@ allocate(zmk(nky,nkx_par,nlz_par))
 call init_mp
 call init_grid
 call init_transforms
-call test_grid
-if (proc0) write(*,*) "nlx,nly,nlz=", nlx,nly,nlz
-if (proc0) write(*,*) "nly_par,nkx_par,nlz_par=",nly_par,nkx_par,nlz_par
+
 !***** Setting initial fields, if required *****
 
 if (initfield.eq."wave") then
     if (proc0) then
-        write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes"
+        write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes, kip=",kip,"kim=",kim,"ampzp=",ampzp,"ampzm=",ampzm
     endif
     do k=1,nlz_par
         do j=1,nly_par
@@ -63,19 +59,15 @@ else
 endif
 
 !TODO: other initfield options, like "norm"
-call barrier
-write(*,*) "Time to testfft"
 !TEMP: testing forward fft
 do k=1,nlz_par
-  write(*,*) k,"th fft"
   call fft(zp(:,:,k),zpk(:,:,k))
 end do
-write(*,*) "fft done"
 do ip=0,nproc-1
   if (iproc.eq.ip) then
     write(*,*) ip
-    do i=1,nkx_par
-      write(*,*) kx(i), zpk(i,1,1)
+    do j=1,nky
+      write(*,*) ky(j), zpk(j,1,1)
     end do
   endif
   call barrier
