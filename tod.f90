@@ -31,6 +31,8 @@ call read_parameters(inputfile)
 
 allocate(zp(nlx,nly_par,nlz_par))
 allocate(zm(nlx,nly_par,nlz_par))
+allocate(zp2(nlx,nly_par,nlz_par))
+allocate(zm2(nlx,nly_par,nlz_par))
 
 allocate(zpk(nky,nkx_par,nlz_par))
 allocate(zmk(nky,nkx_par,nlz_par))
@@ -62,7 +64,9 @@ endif
 !TEMP: testing forward fft
 do k=1,nlz_par
   call fft(zp(:,:,k),zpk(:,:,k))
+  call ifft(zpk(:,:,k),zp2(:,:,k))
   call fft(zm(:,:,k),zmk(:,:,k))
+  call ifft(zmk(:,:,k),zm2(:,:,k))
 end do
 do ip=0,nproc-1
   if (iproc.eq.ip) then
@@ -79,6 +83,7 @@ if ((ifields.gt.0).and.(mod(it,ifields).eq.0)) then
     filename="snap"//trim(itstr)//".dat"
     call savesnap(filename,zp,zm)
     call saveksnap("k"//filename,zpk,zmk)
+    call savesnap("2"//filename,zp2,zm2)
 endif
 
 end program tod

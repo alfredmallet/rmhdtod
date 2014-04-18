@@ -191,19 +191,77 @@ subroutine yfft(ak)
 
 end subroutine yfft
 
+!********** Subroutines for doing inverse transforms **********
 
+subroutine ifft(arrayk,array)
+    use fft_work
+    use mp, only: iproc
+    use redistribute, only: scatter
+    implicit none
+    real, dimension(:,:) :: array
+    complex, dimension(:,:) :: arrayk
+    complex, allocatable, dimension(:,:) :: array_temp,ak
+    integer :: i,j,iglobal
 
+    allocate (ak(nly,nkx_par))
+    ak=arrayk
+    call iyfft(ak)
 
+    allocate(array_temp(nlx/2+1,nly_par))
+    array_temp=0.0
+    call scatter(r2k,ak,array_temp)
+    call ixfft(array_temp,array)
 
+    deallocate(array_temp)
+    deallocate(ak)
 
+end subroutine ifft
 
+subroutine ixfft(akx,array)
+    use fft_work
+    implicit none
+    real, dimension(:,:) :: array
+    complex, dimension(:,:) :: akx
+    logical, save :: first=.true.
+    real, save :: scale
+    integer :: i,j
+    
+    i=size(array,1)
+    j=size(array,2)
+    
+    if (first) then
+        call init_crfftw(fft_k2x,1,i,iplan_k2x)
+        scale=1./sqrt(real(i))
+        first=.false.
+    endif
 
+    call rfftwnd_f77_complex_to_real(iplan_k2x,j,akx,1,i/2+1,array,1,i)
+    array=array*scale
 
+end subroutine ixfft
 
+subroutine iyfft(ak)
+    use fft_work
+    implicit none
+    complex, dimension(:,:) :: ak
+    logical, save :: first=.true.
+    complex :: dummy
+    real, save :: scale
+    integer :: i,j,k1,k2
 
+    i=size(ak,1)
+    j=size(ak,2)
 
+    if (first) then
+        iplan_k2y=10 !do fft in place
+        call init_ccfftw(fft_k2y,1,i,iplan_k2y)
+        scale=1./sqrt(real(i))
+        first=.false.
+    endif
 
+    call fftwnd_f77(iplan_k2y,j,ak,1,i,dummy,0,0)
+    ak=ak*scale
 
-
+end subroutine iyfft
 
 end module transforms
