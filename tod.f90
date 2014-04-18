@@ -1,7 +1,10 @@
 program tod
 !********************************************************************************
 !*                          TOD - solves RMHD equations                         *
-!*                  praise be to the ancestors, GOSTA and VIRIATO               *
+!*                                 Alfred Mallet                                *
+!*                                                                              *
+!*                             based on other codes -                           *
+!*            GOSTA(T.Yousef) and VIRIATO(N.Loureiro,A.Kanekar,A.Mallet)        *
 !********************************************************************************
 
 use init

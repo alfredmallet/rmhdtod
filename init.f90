@@ -43,8 +43,9 @@ real :: scale
 contains
 
 subroutine read_parameters(inputfile)
-    !Reads parameters from the input file
+! Reads parameters from the input file
     implicit none
+    
     character(len=100), intent(in) :: inputfile
     integer  :: ierr
 
@@ -110,6 +111,7 @@ subroutine read_parameters(inputfile)
     dy=ly/(nly*1.)
     dz=lz/(nlz*1.)
     scale=1./(nlx*nly) ! for ffts
+
 end subroutine read_parameters
 
 end module init

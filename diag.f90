@@ -5,13 +5,16 @@ implicit none
 contains
 
 subroutine savesnap(filename,zp,zm)
+
     use init, only: nlx,nly_par,nlz_par
     use mp, only: iproc
     implicit none
+    
     integer :: i,j,k
     character(len=100),intent(in) :: filename
     real, dimension(nlx,nly_par,nlz_par),intent(in) :: zp,zm
     character(len=10) :: procstr
+
     write(procstr,"(I0)") iproc
     open(20,file="data/"//trim(procstr)//"/"//trim(filename))
     do k=1,nlz_par
@@ -22,16 +25,20 @@ subroutine savesnap(filename,zp,zm)
         end do
     end do
     close(20)
+
 end subroutine savesnap
 
 subroutine saveksnap(filename,zpk,zmk)
+    
     use init, only: nky,nkx_par,nlz_par
     use mp, only: iproc
     implicit none
+
     integer :: i,j,k
     character(len=100),intent(in) :: filename
     complex, dimension(nky,nkx_par,nlz_par),intent(in) :: zpk,zmk
     character(len=10) :: procstr
+    
     write(procstr,"(I0)") iproc
     open(20,file="data/"//trim(procstr)//"/"//trim(filename))
     do k=1,nlz_par
@@ -41,9 +48,9 @@ subroutine saveksnap(filename,zpk,zmk)
             end do
         end do
     end do
-99    format(4g16.8)
+99  format(4g16.8)
     close(20)
-end subroutine saveksnap
 
+end subroutine saveksnap
 
 end module diag
