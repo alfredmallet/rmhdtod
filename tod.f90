@@ -88,5 +88,7 @@ if ((ifields.gt.0).and.(mod(it,ifields).eq.0)) then
     call saveksnap("k"//filename,zpk,zmk)
     call savesnap("2"//filename,zp2,zm2)
 endif
+write(*,*) "Finished"
 
+call finish_mp
 end program tod

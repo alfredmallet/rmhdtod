@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH -J test           # job name
+#SBATCH -o test.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -n 16              # total number of mpi tasks requested
+#SBATCH -p development     # queue (partition) -- normal, development, etc.
+#SBATCH -t 00:05:00        # run time (hh:mm:ss)
+
+nproc=$SLURM_NTASKS
+echo $nproc
+nprocm1=$(($nproc-1))
+for i in `seq 0 ${nprocm1}`; do
+  mkdir -p data/$i
+done
+
+ibrun ./tod run              # run 
