@@ -27,7 +27,7 @@ OBJS = tod.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute
 .f90.o:
 	$(FC) $(F90FLAGS) -c $<
 
-%.o: %.mod
+%.o : %.mod
 
 all: tod
 
@@ -43,7 +43,11 @@ clean:
 test_make:
 	@echo $(USE_FFT)
 	@echo $(HOME)
-
+	@echo $(FC)
+	@echo $(F90FLAGS)
+	@echo $(FC_stampede)
+	@echo ${F90FLAGS_${TOD_SYSTEM}}
+	@echo ${TOD_SYSTEM}
 #dependencies
 tod.o: init.o mp_mpi_r8.o transforms.o grid.o diag.o
 grid.o: init.o fft_work_fftw.o

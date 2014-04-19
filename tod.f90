@@ -17,7 +17,7 @@ use diag
 implicit none
 integer :: i,j,k,it,ip
 
-real, dimension(:,:,:), allocatable :: zp,zm
+real, dimension(:,:,:), allocatable :: zp,zm,zp2,zm2
 complex,dimension(:,:,:), allocatable :: zpk,zmk
 
 character(len=100) :: runname, inputfile
