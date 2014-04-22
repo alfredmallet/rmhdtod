@@ -48,9 +48,9 @@ subroutine init_redistribute
                 nn_from(proc_id(k_variable,i,k))=nn_from(proc_id(k_variable,i,k))+1
                 if (idx_local(k_variable,i,k)) &
                 nn_to(proc_id(r_variable,j,k))=nn_to(proc_id(r_variable,j,k))+1
-            end do
-        end do
-    end do
+            enddo
+        enddo
+    enddo
   
     do ip=0,nproc-1
         if (nn_from(ip)>0) then
@@ -61,7 +61,7 @@ subroutine init_redistribute
             allocate(to_list(ip)%first(nn_to(ip)))
             allocate(to_list(ip)%second(nn_to(ip)))
         endif
-    end do
+    enddo
   
     !get local indices of the elements that will go to/from other procs
     nn_to=0
@@ -83,9 +83,9 @@ subroutine init_redistribute
                     to_list(ip)%first(n) = j
                     to_list(ip)%second(n) = 1+mod(i-1,nkx_par)
                 end if
-            end do
-        end do
-    end do
+            enddo
+        enddo
+    enddo
   
     from_low(1)=1
     from_low(2)=1
@@ -127,7 +127,7 @@ subroutine fft(array,arrayk)
     ! Hou-Li filtering
     do i=1,nkx
         array_temp(i,:)=array_temp(i,:)*exp(-36.0*((i*1.0-1.0)/((nkx-1)*1.0))**36)
-    end do
+    enddo
   
     call gather(r2k,array_temp,ak)
 
@@ -135,7 +135,7 @@ subroutine fft(array,arrayk)
     ! Hou-Li filtering
     do j=1,nky
         arrayk(j,:)=ak(j,:)*exp(-36.0*(abs(ky(j))/(nky/2.*lx/ly))**36)
-    end do
+    enddo
 
     deallocate(ak)
     deallocate(array_temp)

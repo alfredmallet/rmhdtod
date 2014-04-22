@@ -21,9 +21,9 @@ subroutine savesnap(filename,zp,zm)
         do j=1,nly_par
             do i=1,nlx
                 write(20,*) zp(i,j,k), zm(i,j,k)
-            end do
-        end do
-    end do
+            enddo
+        enddo
+    enddo
     close(20)
 
 end subroutine savesnap
@@ -45,9 +45,9 @@ subroutine saveksnap(filename,zpk,zmk)
         do j=1,nky
             do i=1,nkx_par
                 write(20,99) real(zpk(j,i,k)),aimag(zpk(j,i,k)),real(zmk(j,i,k)),aimag(zmk(j,i,k))
-            end do
-        end do
-    end do
+            enddo
+        enddo
+    enddo
 99  format(4g16.8)
     close(20)
 

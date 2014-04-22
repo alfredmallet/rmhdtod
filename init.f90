@@ -6,6 +6,9 @@ save
 !***** Declare constants *****
 
 real, parameter :: pi=3.1415926535
+!scheme
+logical :: lnonlinear=.true.,ladvect=.true.,ldiffuse=.true.,lforce=.true.
+integer :: rkorder=3
 !box
 real :: lx=1,ly=1,lz=1
 integer :: nlx=16,nly=16,nlz=16
@@ -22,7 +25,6 @@ real :: ampzp=1.0,ampzm=0.5
 character(len=4) :: initfield="wave"
 real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
-logical :: turb=.true.
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
 !output
 integer :: iout=50,ispec=-1,ifields=1000000
@@ -49,50 +51,40 @@ subroutine read_parameters(inputfile)
     character(len=100), intent(in) :: inputfile
     integer  :: ierr
 
+    namelist /scheme_parameters/ lnonlinear,ladvect,ldiffuse,lforce,rkorder
     namelist /box_parameters/ lx,ly,lz,nlx,nly,nlz,npperp,npz
     namelist /time_parameters/ tmax, imax,cfl_frac
     namelist /diss_parameters/ hyper_order,nu
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
-    namelist /force_parameters/ turb,kfp1,kfp2,kfz1,kfz2,epsp,epsm
+    namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, ifields, tspec, tfields
     namelist /restart_parameters/ restart,rsfile,rspath
 
     open(unit=10,file=trim(inputfile),status='old')
+    read(10,nml=scheme_parameters,iostat=ierr)
+        if (ierr/=0) write(*,*) "Reading scheme parameters failed"
+        write(*,nml=scheme_parameters)
     read(10,nml=box_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading box_parameters failed"
-            write(*,*) "lx,ly,lz,nlx,nly,nlz,npperp,npz=", lx,ly,lz,nlx,nly,nlz,npperp,npz
-        endif
+        if (ierr/=0) write(*,*) "Reading box_parameters failed"
+        write(*,nml=box_parameters)
     read(10,nml=time_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading time_parameters failed"
-            write(*,*) "tmax, imax,cfl_frac=", tmax, imax,cfl_frac
-        endif
+        if (ierr/=0) write(*,*) "Reading time_parameters failed"
+        write(*,nml=time_parameters)
     read(10,nml=diss_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading diss_parameters failed"
-            write(*,*) "hyper_order,nu=", hyper_order,nu
-        endif
+        if (ierr/=0) write(*,*) "Reading diss_parameters failed"
+        write(*,nml=diss_parameters)
     read(10,nml=start_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading start_parameters failed"
-            write(*,*) "ampzp,ampzm,initfield,kip,kim=", ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
-        endif
+        if (ierr/=0) write(*,*) "Reading start_parameters failed"
+        write(*,nml=start_parameters)
     read(10,nml=force_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading force_parameters failed"
-            write(*,*) "turb,kfp1,kfp2,kfz1,kfz2,epsp,epsm=", turb,kfp1,kfp2,kfz1,kfz2,epsp,epsm
-        endif
+        if (ierr/=0) write(*,*) "Reading force_parameters failed"
+        write(*,nml=force_parameters)
     read(10,nml=output_parameters,iostat=ierr)
-        if(ierr /= 0) then
-            write(*,*) "Reading output_parameters failed"
-            write(*,*) "iout, ispec, ifields, tspec, tfields=", iout, ispec, ifields, tspec, tfields
-        endif
+        if (ierr/=0) write(*,*) "Reading output_parameters failed"
+        write(*,nml=output_parameters)
     read(10,nml=restart_parameters,iostat=ierr)
-        if (ierr/=0) then
-            write(*,*) "Reading restart_parameters failed"
-            write(*,*) "restart,rsfile,rspath", restart,rsfile,rspath
-        endif
+        if (ierr/=0) write(*,*) "Reading restart_parameters failed"
+        write(*,nml=restart_parameters)
     close(10)
 
     lx=2.*pi*lx

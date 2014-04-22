@@ -765,8 +765,8 @@ contains
 	do k = 1,dim3
 		do i = 1,dim2
 			call mpi_send (z(:,i,k), dim1, MPI_DOUBLE_COMPLEX, dest, tagp, MPI_COMM_WORLD, ierror)
-		end do
-	end do
+		enddo
+	enddo
   end subroutine zsend
 
 
@@ -941,8 +941,8 @@ contains
 		do l = 1,dim2
 			call mpi_recv (z(:,l,k), dim1, MPI_DOUBLE_COMPLEX, src, tagp, MPI_COMM_WORLD, &
         status, ierror)
-	end do 
-	end do
+	enddo 
+	enddo
   end subroutine zreceive
 
   subroutine receive_logical (f, src, tag)

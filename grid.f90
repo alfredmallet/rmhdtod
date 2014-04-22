@@ -70,9 +70,9 @@ subroutine test_grid
                 do i=1,nkx
                     write(30,*) i,j,k,proc_id(r_variable,j,k)
                     write(40,*) i,j,k,proc_id(k_variable,i,k)
-                end do
-            end do
-        end do
+                enddo
+            enddo
+        enddo
         close(30)
         close(40)
     endif
