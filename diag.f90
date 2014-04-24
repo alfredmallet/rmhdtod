@@ -2,12 +2,14 @@ module diag
 
 implicit none
 
+integer :: ispecfile,isnapfile
+
 contains
 
-subroutine savesnap(filename,zp,zm)
+subroutine savesnap(filename,zp,zm,t)
 
     use init, only: nlx,nly_par,nlz_par
-    use mp, only: iproc
+    use mp, only: iproc,proc0
     implicit none
     
     integer :: i,j,k
@@ -15,8 +17,13 @@ subroutine savesnap(filename,zp,zm)
     real, dimension(nlx,nly_par,nlz_par),intent(in) :: zp,zm
     character(len=10) :: procstr
 
+    if (proc0) then
+        open(25,file=trim(datadir)//"/"//"tsnaps.dat",access="append")
+        write(25,*) isnapfile,t
+        close(25)
+    endif
     write(procstr,"(I0)") iproc
-    open(20,file="data/"//trim(procstr)//"/"//trim(filename))
+    open(20,file=trim(datadir)//"/"//trim(procstr)//"/"//trim(filename))
     do k=1,nlz_par
         do j=1,nly_par
             do i=1,nlx
@@ -29,7 +36,7 @@ subroutine savesnap(filename,zp,zm)
 end subroutine savesnap
 
 subroutine saveksnap(filename,zpk,zmk)
-    
+!   not used: may be useful for tests    
     use init, only: nky,nkx_par,nlz_par
     use mp, only: iproc
     implicit none
