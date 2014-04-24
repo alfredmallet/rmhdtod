@@ -8,7 +8,7 @@ contains
 
 subroutine savesnap(filename,zp,zm,t)
 
-    use init, only: nlx,nly_par,nlz_par
+    use init, only: nlx,nly_par,nlz_par,datadir
     use mp, only: iproc,proc0
     implicit none
     
@@ -16,6 +16,7 @@ subroutine savesnap(filename,zp,zm,t)
     character(len=100),intent(in) :: filename
     real, dimension(nlx,nly_par,nlz_par),intent(in) :: zp,zm
     character(len=10) :: procstr
+    real :: t
 
     if (proc0) then
         open(25,file=trim(datadir)//"/"//"tsnaps.dat",access="append")

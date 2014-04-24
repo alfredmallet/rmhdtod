@@ -28,7 +28,6 @@ character(len=100) :: runname, inputfile
 character(len=100) :: filename
 character(len=10) :: itstr
 character(len=10) :: procstr
-character(len=100) :: datadir="data",rundir="./"
 
 !********** Initialization **********
 
@@ -178,8 +177,8 @@ timeloop: do
                 fac=lz/2./pi
                 kfz=nint(kfz1*fac-0.5*uniran()*(fac*kfz2-fac*kfz1+1.0))/fac
                 kfz=kfz*nint(sign(1.0,(2.0*uniran()-1.0)))
-                if (epsm.ge.0) !elsasser forcing
-                    if (epsp.gt.0) call force(kfz,epsp,dt/s,spk,smk'p')
+                if (epsm.ge.0) then !elsasser forcing
+                    if (epsp.gt.0) call force(kfz,epsp,dt/s,spk,smk,'p')
                     kfz=nint(kfz1*fac-0.5*uniran()*(fac*kfz2-fac*kfz1+1.0))/fac
                     kfz=kfz*nint(sign(1.0,(2.0*uniran()-1.0)))
                     if (epsm.gt.0) call force(kfz,epsm,dt/s,spk,smk,'m')

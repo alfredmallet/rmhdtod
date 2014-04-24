@@ -30,6 +30,7 @@ real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
 integer :: iout=50,ispec=-1,ifields=1000000
 real :: tspec=2.*pi,tfields=2.*pi
 character(len=100) :: tsfile="ts.dat"
+character(len=100) :: datadir="data",rundir="./"
 !restart
 integer :: restart=0
 character(len=100) :: rsfile="snap_old.dat"
@@ -58,7 +59,7 @@ subroutine read_parameters(inputfile)
     namelist /diss_parameters/ hyper_order,nu
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
-    namelist /output_parameters/ iout, ispec, ifields, tspec, tfields,tsfile
+    namelist /output_parameters/ iout, ispec, ifields, tspec,tfields,tsfile,datadir
     namelist /restart_parameters/ restart,rsfile,rspath
 
     open(unit=10,file=trim(inputfile),status='old')
