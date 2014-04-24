@@ -17,11 +17,11 @@ module mp
   public :: broadcast, sum_reduce, sum_allreduce
   public :: max_reduce, max_allreduce
   public :: min_reduce, min_allreduce
-  public :: nproc, iproc, proc0
-  public :: send, receive,zsend,zreceive,isend,ireceive
+  public :: nproc, iproc, proc0,ileft,iright
+  public :: send, receive,zsend,zreceive,isend,ireceive,zshift
   public :: barrier
 
-  integer :: nproc, iproc
+  integer :: nproc, iproc, ileft, iright
   logical :: proc0
 
   interface broadcast
@@ -139,6 +139,7 @@ module mp
 contains
 
   subroutine init_mp
+    use init, only: npperp
     implicit none
     include 'mpif.h'
     integer :: ierror, rank
@@ -147,6 +148,8 @@ contains
     call mpi_comm_size (mpi_comm_world, nproc, ierror)
     call mpi_comm_rank (mpi_comm_world, iproc, ierror)
     proc0 = iproc == 0
+    ileft=modulo(iproc-npperp,nproc)
+    iright=modulo(iproc+npperp,nproc)
   end subroutine init_mp
 
   subroutine finish_mp
@@ -769,6 +772,39 @@ contains
 	enddo
   end subroutine zsend
 
+  subroutine zshift(ak,shift,shiftak)
+    implicit none
+    include 'mpif.h'
+    complex, dimension(:,:,:), intent(in) :: ak
+    complex, dimension(:,:,:), intent(out) :: shiftak
+    integer, intent(in) :: shift
+    complex, dimension(:,:),allocatable :: sendbuf, recvbuf
+    integer :: ierr, bufsize,dimz,dimx,dimy
+    integer :: istatus(mpi_status_size)
+    dimz=size(ak,3)
+    dimy=size(ak,1)
+    dimx=size(ak,2)
+    bufsize=dimx*dimy
+    allocate(sendbuf(dimy,dimx))
+    allocate(recvbuf(dimy,dimx))
+    if (shift.eq.-1) then
+      sendbuf=ak(:,:,dimz)
+      call mpi_sendrecv(sendbuf,bufsize,mpi_double_complex,iright,iright+777, &
+        recvbuf,bufsize,mpi_double_complex,ileft,iproc+777,&
+        mpi_comm_world,istatus,ierr)
+      shiftak=ak
+      shiftak(:,:,dimz)=recvbuf
+      shiftak=cshift(shiftak,-1,3)
+    else
+      sendbuf=ak(:,:,1)
+      call mpi_sendrecv(sendbuf,bufsize,mpi_double_complex,ileft,ileft+666, &
+        recvbuf,bufsize,mpi_double_complex,iright,iproc+666,&
+        mpi_comm_world,istatus,ierr)
+      shiftak=ak
+      shiftak(:,:,1)=recvbuf
+      shiftak=cshift(shiftak,1,3)
+    endif
+  end subroutine zshift
 
   subroutine send_logical (f, dest, tag)
     implicit none

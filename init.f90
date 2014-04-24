@@ -20,6 +20,7 @@ real :: cfl_frac=0.25
 !diss
 integer :: hyper_order=3
 real :: nu=0.0
+real :: znu=0.0
 !start
 real :: ampzp=1.0,ampzm=0.5
 character(len=4) :: initfield="wave"
@@ -27,8 +28,9 @@ real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
 !output
-integer :: iout=50,ispec=-1,ifields=1000000
-real :: tspec=2.*pi,tfields=2.*pi
+integer :: iout=50,ispec=-1,isnap=1000000
+logical :: llastsnap=.true.
+real :: tspec=2.*pi,tsnap=2.*pi
 character(len=100) :: tsfile="ts.dat"
 character(len=100) :: datadir="data",rundir="./"
 !restart
@@ -59,7 +61,7 @@ subroutine read_parameters(inputfile)
     namelist /diss_parameters/ hyper_order,nu
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
-    namelist /output_parameters/ iout, ispec, ifields, tspec,tfields,tsfile,datadir
+    namelist /output_parameters/ iout, ispec, isnap, tspec,tsnap,tsfile,datadir
     namelist /restart_parameters/ restart,rsfile,rspath
 
     open(unit=10,file=trim(inputfile),status='old')

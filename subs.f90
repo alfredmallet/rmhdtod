@@ -9,7 +9,8 @@ contains
 subroutine force(kfz,eps,dt,spk,smk,field)
 
     use init
-    use mpi, only: proc0
+    use mp, only: proc0,iproc
+    use grid, only: zz
     implicit none
 
     real, intent(in) :: dt,eps,kfz
@@ -19,15 +20,15 @@ subroutine force(kfz,eps,dt,spk,smk,field)
     complex, dimension(:,:,:) :: spk,smk
     real :: kfp, kav=0
     real :: amp, phi, phiz
-    integer :: i,j,ik,nk=0,sgn,i_rl,i_im
+    integer :: i,j,ik,k,nk=0,sgn,proc_force,iloc
     logical, save :: lfirst=.true.
 
     ! calculate possible elements
     if (lfirst) then
         allocate(kfs_big(nkx*nky,2))
         do i=-ceiling(kfp2),ceiling(kfp2)
-            do j=-ceiling(kfp2,ceiling(kfp2)
-                kfp=sqrt(i**2+j**2)
+            do j=-ceiling(kfp2),ceiling(kfp2)
+                kfp=sqrt((1.0*i)**2+(1.0*j)**2)
                     if ((kfp.ge.kfp1).and.(kfp.le.kfp2).and.(kfp.ne.0.)) then
                         nk=nk+1
                         kfs_big(nk,1)=i
@@ -47,7 +48,7 @@ subroutine force(kfz,eps,dt,spk,smk,field)
     ik=nk*.9999*uniran()+1
     kfp=sqrt(kfs(ik,1)**2.+kfs(ik,2)**2.)
     ! choose amplitude and phase
-    amp=sqrt(-eps/dt/kfp**2.0*log(uniran()))*sqrt(nlx*nly) !N.B. may depend on fft convention
+    amp=sqrt(-eps/dt/kfp**2.0*log(uniran()))*sqrt(1.0*nlx*nly) !N.B. may depend on fft convention
     phi=pi*(2.0*uniran()-1.0)
     ! convert to array indices
     sgn=sign(1,kfs(ik,1))
@@ -66,7 +67,7 @@ subroutine force(kfz,eps,dt,spk,smk,field)
     endif
 
     if (mod(iproc,npperp).eq.proc_force) then
-        if ((field.eq.'b').or.(field.eq.'p') then
+        if ((field.eq.'b').or.(field.eq.'p')) then
             do k=1,nlz_par
                 spk(j,iloc,k)=spk(j,iloc,k)+amp*cos(phi)*cos(kfz*zz(k)+phiz)&
                                            +(0.0,1.0)*amp*sin(phi)*sin(kfz*zz(k)+phiz)
@@ -96,7 +97,7 @@ subroutine grad(ak,ga)
     real, dimension(:,:,:,:) :: ga
     complex, dimension(:,:,:) :: ak
     complex, allocatable, dimension(:,:,:,:) :: gak
-    integer :: i,j,xy
+    integer :: i,j,k,xy
 
     allocate(gak(nky,nkx_par,nlz_par,2))
 
@@ -109,10 +110,10 @@ subroutine grad(ak,ga)
         enddo
         do xy=1,2
             call ifft(gak(:,:,k,xy),ga(:,:,k,xy))
+        enddo
     enddo
 
     deallocate(gak)
-    deallocate(ak)
 
 end subroutine grad
 
@@ -138,15 +139,15 @@ subroutine crossk(ga1,ga2,bk)
 
 end subroutine crossk
 
-subroutine multkn(ak,k2hak,n)
+subroutine multkn(ak,knhak,n)
 
     use grid, only: kx,ky
     use mp, only: iproc
     implicit none
 
-    real, dimension(:,:,:), intent(in) :: ak
-    real, dimension(:,:,:), optional, intent(out) :: k2hak
-    integer, optional, intent(in) :: hyper
+    complex, dimension(:,:,:), intent(inout) :: ak
+    complex, dimension(:,:,:), optional, intent(out) :: knhak
+    integer, optional, intent(in) :: n
     integer :: power,k,i,j,iglobal
 
     if (present(n)) then
@@ -155,17 +156,17 @@ subroutine multkn(ak,k2hak,n)
         power=2
     endif
     
-    if (present(k2hak)) then
+    if (present(knhak)) then
         do k=1,nlz_par
             do i=1,nkx_par
                 iglobal=mod(iproc,npperp)*nkx_par+i
                 do j=1,nky
-                    !need to take care of 0 mode in case hyper is -ve:
+                    !need to take care of 0 mode in case n is -ve:
                     !corresponds to removing mean field
-                    if ((iglobal.eq.1).and.(j.eq.1) then
-                        k2hak(j,i,k)=0.0
+                    if ((iglobal.eq.1).and.(j.eq.1)) then
+                        knhak(j,i,k)=0.0
                     else
-                        k2hak(j,i,k)=(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
+                        knhak(j,i,k)=(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
                     endif
                 enddo
             enddo
@@ -175,7 +176,7 @@ subroutine multkn(ak,k2hak,n)
             do i=1,nkx_par
                 iglobal=mod(iproc,npperp)*nkx_par+i
                 do j=1,nky
-                    if ((iglobal.eq.1).and.(j.eq.1) then
+                    if ((iglobal.eq.1).and.(j.eq.1)) then
                         ak(j,i,k)=0.0
                     else
                         ak(j,i,k)=(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
@@ -192,7 +193,7 @@ subroutine smooth(ak)
     use grid, only: kx,ky
     implicit none
 
-    real, dimension(:,:,:),intent(inout) :: ak
+    complex, dimension(:,:,:),intent(inout) :: ak
     integer :: i,j,k
 
     !Hou-Li filtering
@@ -205,7 +206,7 @@ subroutine smooth(ak)
         enddo
     enddo
 
-end subroutine smooth(ak)
+end subroutine smooth
 
 real function meanmult(ak,bk)
 !   mean of ab using Parseval's theorem
@@ -213,12 +214,11 @@ real function meanmult(ak,bk)
     implicit none
 
     complex, dimension(:,:,:), intent(in) :: ak,bk
-    real :: meanmult
     
     meanmult=0.0 
-    meanmult=sum(ak(1,:,:)*conjg(bk(1,:,:)))+2.0*sum(a(2,:,:)*conjg(bk(2,:,:)))
+    meanmult=sum(ak(1,:,:)*conjg(bk(1,:,:)))+2.0*sum(ak(2,:,:)*conjg(bk(2,:,:)))
     meanmult=meanmult/2.0/nkx/nky/nlz
-    call sum_reduce(meanmult,proc0)
+    call sum_reduce(meanmult,0)
 
 end function meanmult
 
@@ -227,6 +227,7 @@ real function rmsk(ak)
     implicit none
 
     complex, allocatable, dimension(:,:,:) :: dum
+    complex, dimension(:,:,:) :: ak
 
     allocate(dum(nky,nkx_par,nlz_par))
 
@@ -235,5 +236,61 @@ real function rmsk(ak)
 
 end function rmsk
 
+function uniran(init)
+!
+! 26-sep-02/wolf: Adapted from `Numerical Recipes for F90' ran() routine
+! 23-mai-06/tay: Ripped from Pencil-code
+! 24/4/14: AM ripped from gosta
+!
+! "Minimal" random number generator of Park and Miller combined
+! with a Marsaglia shift sequence. Returns a uniform random deviate
+! between 0.0 and 1.0 (exclusive of the endpoint values).
+! Call with (INIT=ival) to initialize.
+! The period of this generator is supposed to be about 3.1× 10^18.
+!
+implicit none
+!
+real (kind=8) :: uniran
+integer, parameter :: mseed=256
+! integer, dimension(mseed), save :: seed=0
+integer, dimension(mseed), save :: rstate=0
+real (kind=8), parameter :: impossible=3.9085e37
+real (kind=8), save :: am=impossible  ! will be constant on a given platform
+integer, optional, intent(in) :: init
+integer, parameter :: ia=16807,im=2147483647,iq=127773,ir=2836
+integer :: k,init_ts=1812   ! default value
+logical, save :: first_call=.true.
+
+!ajw This doesn't appear to always get set!
+if (first_call) then
+  am=nearest(1.0,-1.0)/im
+  first_call=.false.
+endif
+if (present(init) .or. rstate(1)==0 .or. rstate(2)<=0) then
+  !
+  ! initialize
+  !
+  if (present(init)) init_ts = init
+  am=nearest(1.0,-1.0)/im
+  rstate(1)=ieor(777755555,abs(init_ts))
+  rstate(2)=ior(ieor(888889999,abs(init_ts)),1)
+endif
+!
+! Marsaglia shift sequence with period 2^32-1
+!
+rstate(1)=ieor(rstate(1),ishft(rstate(1),13))
+rstate(1)=ieor(rstate(1),ishft(rstate(1),-17))
+rstate(1)=ieor(rstate(1),ishft(rstate(1),5))
+!
+! Park-Miller sequence by Schrage's method, period 2^31-2
+!
+k=rstate(2)/iq
+rstate(2)=ia*(rstate(2)-k*iq)-ir*k
+if (rstate(2) < 0) rstate(2)=rstate(2)+im
+!
+! combine the two generators with masking to ensure nonzero value
+!
+uniran=am*ior(iand(im,ieor(rstate(1),rstate(2))),1)
+endfunction uniran
 
 end module subs

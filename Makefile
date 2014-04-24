@@ -20,7 +20,7 @@ FLIBS = ${FLIBS_${TOD_SYSTEM}}
 F90FLAGS = ${F90FLAGS_${TOD_SYSTEM}}
 MKLFLAGS = ${MKLFLAGS_${TOD_SYSTEM}}
 
-OBJS = tod.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o diag.o
+OBJS = tod.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o 
 
 .SUFFIXES: .f90
 
@@ -49,8 +49,10 @@ test_make:
 	@echo ${F90FLAGS_${TOD_SYSTEM}}
 	@echo ${TOD_SYSTEM}
 #dependencies
-tod.o: init.o mp_mpi_r8.o transforms.o grid.o diag.o
+tod.o: init.o mp_mpi_r8.o transforms.o grid.o diag.o subs.o
 grid.o: init.o fft_work_fftw.o
 transforms.o: init.mod fft_work_fftw.o grid.o redistribute_mpi.o
 diag.o: mp_mpi_r8.o init.mod grid.o transforms.o
-init.o: mp_mpi_r8.o
+subs.o: mp_mpi_r8.o init.mod grid.o transforms.o
+init.o: 
+mp_mpi_r8.o: init.mod

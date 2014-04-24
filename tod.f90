@@ -17,12 +17,13 @@ implicit none
 
 integer :: i,j,k,it,ip,irk
 
-real :: t,dt,tlastsnap,tlastspec,small
+real :: t,dt,tlastsnap,tlastspec,small,dtva,maxgzx,maxgzy,s,wnlp,wnlm
+real :: fac,kfz,wfp,wfm,wadp,wadm,wnup,wnum
 
-real, dimension(:,:,:), allocatable :: zp,zm
-complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum
-real, dimension(:,:,:,2), allocatable :: gzp,gzm,gsp,gsm
-logical :: llast=.false.,lout=.false.
+real, dimension(:,:,:), allocatable :: zp,zm,rdum
+complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum,zpk0,zmk0
+real, dimension(:,:,:,:), allocatable :: gzp,gzm,gsp,gsm
+logical :: llast=.false.,lout=.false.,lsnap
 
 character(len=100) :: runname, inputfile
 character(len=100) :: filename
@@ -51,6 +52,8 @@ allocate(zmk0(nky,nkx_par,nlz_par))
 allocate(spk(nky,nkx_par,nlz_par))
 allocate(smk(nky,nkx_par,nlz_par))
 allocate(dum(nky,nkx_par,nlz_par))
+
+allocate(rdum(nky,nkx_par,nlz_par))
 call init_mp
 call init_grid
 call init_transforms
@@ -81,7 +84,6 @@ dt=1e10 !setting timestep to a large number
 dtva=cfl_frac*dz
 
 if (ladvect) dt=min(dt,dtva)
-if (ldiffuse) dt=min(dt,dtv)
 
 !go to fourier space
 do k=1,nlz_par
@@ -94,9 +96,7 @@ enddo
 call outputts(tsfile)
 
 !start of the timestep
-ilastspec=0
-ilastsnap=0
-tlastspec=0.0
+isnapfile=0
 tlastsnap=0.0
 it=0
 t=0.0
@@ -166,9 +166,9 @@ timeloop: do
         ! work done by nonlinear term
         if (lout.and.(irk.eq.1)) then
             call multkn(spk,dum)
-            work_nlp=meanmult(dum,zpk)*dt
+            wnlp=meanmult(dum,zpk)*dt
             call multkn(smk,dum)
-            work_nlm=meanmult(dum,zmk)*dt
+            wnlm=meanmult(dum,zmk)*dt
         endif
 
         ! forcing
@@ -191,9 +191,9 @@ timeloop: do
         ! work done by forcing terms
         if (lout.and.(irk.eq.1)) then
             call multkn(spk,dum)
-            work_fp=meanmult(dum,zpk)*dt-work_nlp
+            wfp=meanmult(dum,zpk)*dt-wnlp
             call multkn(smk,dum)
-            work_fm=meanmult(dum(zmk)*dt-work_nlm   
+            wfm=meanmult(dum,zmk)*dt-wnlm   
         endif
 
         !linear (advection) term 
@@ -204,9 +204,9 @@ timeloop: do
             call zshift(zpk,-1,dum)
             spk=spk+(znu/dz**2-0.5/dz)*dum-2*znu/dz**2*zpk
             
-            call zshift(zm,+1,dum)
+            call zshift(zmk,+1,dum)
             smk=smk+(znu/dz**2-0.5/dz)*dum
-            call zshift(zm,-1,dum)
+            call zshift(zmk,-1,dum)
             smk=smk+(znu/dz**2+0.5/dz)*dum-2*znu/dz**2*zmk
 
         endif
@@ -214,8 +214,8 @@ timeloop: do
         !work done by advection term
         if (lout.and.(irk.eq.1)) then
             call multkn(spk,dum)
-            work_ap=meanmult(dum,zp)*dt-work_nlp-work_fp
-            work_am=meanmult(dum,zm)*dt-work_nlm-work_fm
+            wadp=meanmult(dum,zpk)*dt-wnlp-wfp
+            wadm=meanmult(dum,zmk)*dt-wnlm-wfm
         endif
 
         !diffusion term and timestepping
@@ -223,10 +223,10 @@ timeloop: do
 
             dum=-nu*dt/s
             call multkn(dum,n=2*hyper_order)
-            where (dum.lt.-small)
-                dum=exp(dum)
+            where (abs(dum).lt.-small)
+                dum=exp(abs(dum))
             elsewhere 
-                dum=1.0+dum+dum*dum/2.0
+                dum=abs(1.0+dum+dum*dum/2.0)
             endwhere
             
             zpk=zpk0*dum
@@ -254,9 +254,9 @@ timeloop: do
     !work done by diffusion
     if (lout) then
         call multkn(zpk0,dum,n=hyper_order+1)
-        wp2=meanmult(dum,dum)
+        wnup=meanmult(dum,dum)
         call multkn(zmk0,dum,n=hyper_order+1)
-        wm2=meanmult(dum,dum)
+        wnum=meanmult(dum,dum)
     endif
         
     !timeseries 
@@ -273,8 +273,8 @@ timeloop: do
         write(itstr,"(I0)") isnapfile      
         filename="snap"//trim(itstr)//".dat"
         do k=1,nlz_par    
-            zp(:,:,k)=ifft(zpk(:,:,k))
-            zm(:,:,k)=ifft(zmk(:,:,k))
+            call ifft(zpk(:,:,k),zp(:,:,k))
+            call ifft(zmk(:,:,k),zm(:,:,k))
         enddo
         call savesnap(filename,zp,zm,t)
         
@@ -308,7 +308,8 @@ subroutine outputts(filename)
     character (len=100),optional :: filename
     logical, save :: lfirst=.true.
     complex, dimension(:,:,:),allocatable :: dum,dum2,phik,psik
-    real :: ep,em
+    real :: ep,em,eu,eb,er,h,rmszp,rmszm
+    character(len=1000) :: astring
 
     allocate(dum(nky,nkx_par,nlz_par))
     allocate(dum2(nky,nkx_par,nlz_par))
@@ -329,7 +330,7 @@ subroutine outputts(filename)
     rmszp=sqrt(meanmult(zpk,zpk)) ! rms z+
     rmszm=sqrt(meanmult(zmk,zmk)) ! rms z-
     er=-meanmult(zmk,dum2) ! <z+.z->, residual energy
-    eh=-meanmult(phik,dum) ! <u.b>, cross-helicity
+    h=-meanmult(phik,dum) ! <u.b>, cross-helicity
 
     if (proc0.and.lfirst) then
         open(35,file=trim(datadir)//"/"//trim(filename),position="append")
@@ -351,16 +352,16 @@ subroutine outputts(filename)
     endif
 
     if (proc0) then 
-        write(astring,'I9,18(G25.17)') &
+        write(astring,'(I9,18(G25.17))') &
                 it,t,                  &
                 Ep,Em,                 &
                 Eu,Eb,                 &
                 Er,H,                  &
                 zp,zm,                 &
-                Wnup,Wnum,             &
-                Wnlp,Wnlm,             &
-                Wadp,Wadm,             &
-                Wfp,Wfm,               &
+                wnup,wnum,             &
+                wnlp,wnlm,             &
+                wadp,wadm,             &
+                wfp,wfm,               &
                 dt
         if (present(filename)) then
             open(35,file=trim(datadir)//"/"//trim(filename),position="append")
