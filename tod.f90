@@ -15,10 +15,10 @@ use diag
 use subs
 implicit none
 
-integer :: i,j,k,it,ip,irk
+integer :: i,j,k,it=0,ip,irk
 
-real :: t,dt,tlastsnap,tlastspec,small,dtva,maxgzx,maxgzy,s,wnlp,wnlm
-real :: fac,kfz,wfp,wfm,wadp,wadm,wnup,wnum
+real :: t=0,dt,tlastsnap,tlastspec,small,dtva,maxgzx,maxgzy,s,wnlp=0,wnlm=0
+real :: fac,kfz,wfp=0,wfm=0,wadp=0,wadm=0,wnup=0,wnum=0
 
 real, dimension(:,:,:), allocatable :: zp,zm,rdum
 complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum,zpk0,zmk0
@@ -118,9 +118,11 @@ timeloop: do
     t=t+dt
 
     !are we going to output to the timeseries?
-    lout=(mod(iout,it).eq.0)
+    lout=(mod(it,iout).eq.0)
+    write(*,*) it, imax
     !are we going to stop?
     llast=((it.ge.imax).and.(imax.ge.0)).or.((t.ge.tmax).and.(tmax.ge.0))
+    write(*,*) llast
     !stopping gracefully - looks for STOP in the run directory
     filename=trim(rundir)//"STOP"
     if (proc0) inquire(file=trim(filename),exist=llast) 
@@ -198,7 +200,6 @@ timeloop: do
 
         !linear (advection) term 
         if (ladvect) then
-
             call zshift(zpk,+1,dum)
             spk=spk+(znu/dz**2+0.5/dz)*dum
             call zshift(zpk,-1,dum)
@@ -220,11 +221,11 @@ timeloop: do
 
         !diffusion term and timestepping
         if (ldiffuse) then
-
+            write(*,*) it, "doing diffusion"
             dum=-nu*dt/s
             call multkn(dum,n=2*hyper_order)
-            where (abs(dum).lt.-small)
-                dum=exp(abs(dum))
+            where (abs(dum).gt.small)
+                dum=exp(-abs(dum))
             elsewhere 
                 dum=abs(1.0+dum+dum*dum/2.0)
             endwhere
@@ -237,9 +238,11 @@ timeloop: do
 
             zpk=zpk+spk*dum/nu
             zmk=zmk+smk*dum/nu
-            
-            zpk(0,:,:)=0
-            zmk(0,:,:)=0
+           
+            if (mod(iproc,npperp).eq.0) then 
+                zpk(1,1,:)=0
+                zmk(1,1,:)=0
+            endif
         
         else
             
@@ -260,7 +263,7 @@ timeloop: do
     endif
         
     !timeseries 
-    call outputts(tsfile)
+    if (lout) call outputts(tsfile)
 
     !snapshot
     lsnap=((isnap.gt.0).and.(mod(isnap,it).eq.0))
@@ -333,17 +336,17 @@ subroutine outputts(filename)
     h=-meanmult(phik,dum) ! <u.b>, cross-helicity
 
     if (proc0.and.lfirst) then
-        open(35,file=trim(datadir)//"/"//trim(filename),position="append")
+        open(35,file=trim(datadir)//"/"//trim(filename),recl=10000,position="append")
         write(astring,'(A10,18A25)') &
-                       "    it    ","            t            "&
-        "           Ep            ","           Em            "&
-        "           Eu            ","           Eb            "&
-        "           Er            ","           H             "&
-        "           zp            ","           zm            "&
-        "          Wnup           ","          Wnum           "&
-        "          Wnlp           ","          Wnlm           "&
-        "          Wadp           ","          Wadm           "& 
-        "           Wfp           ","           Wfm           "&
+                       "    it    ","            t            ",&
+        "           Ep            ","           Em            ",&
+        "           Eu            ","           Eb            ",&
+        "           Er            ","           H             ",&
+        "           zp            ","           zm            ",&
+        "          Wnup           ","          Wnum           ",&
+        "          Wnlp           ","          Wnlm           ",&
+        "          Wadp           ","          Wadm           ",& 
+        "           Wfp           ","           Wfm           ",&
         "           dt            "
         write(35,*) trim(astring)
         write(*,*) trim(astring)
@@ -352,19 +355,11 @@ subroutine outputts(filename)
     endif
 
     if (proc0) then 
-        write(astring,'(I9,18(G25.17))') &
-                it,t,                  &
-                Ep,Em,                 &
-                Eu,Eb,                 &
-                Er,H,                  &
-                zp,zm,                 &
-                wnup,wnum,             &
-                wnlp,wnlm,             &
-                wadp,wadm,             &
-                wfp,wfm,               &
-                dt
+        write(*,*) it,t,ep,em,eu,eb,er,h,rmszp,rmszm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
+        write(astring,'(I10,18G25.8)') it,t,ep,em,eu,eb,er,h,rmszp,rmszm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
+        !write(astring,'(I10,18G25.8)') it,t,Ep,Em,Eu,Eb,Er,H,zp,zm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
         if (present(filename)) then
-            open(35,file=trim(datadir)//"/"//trim(filename),position="append")
+            open(35,file=trim(datadir)//"/"//trim(filename),recl=10000,position="append")
             write(35,*) trim(astring)
             close(35)
         endif

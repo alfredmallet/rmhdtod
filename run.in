@@ -2,6 +2,14 @@
 !*                   TOD INPUTS                    *
 !***************************************************
 
+&scheme_parameters
+lnonlinear=.false.
+ladvect=.true.
+ldiffuse=.false.
+lforce=.false.
+rkorder=3
+/
+
 &box_parameters
 lx=1.0
 ly=1.0
@@ -14,14 +22,15 @@ npz=4
 /
 
 &time_parameters
-tmax=0
-imax=0
+tmax=10
+imax=100
 cfl_frac=0.25
 /
 
 &diss_parameters
 hyper_order=3
-nu=3
+nu=0.1
+znu=0.1
 /
 
 &start_parameters
@@ -37,7 +46,6 @@ kimz=1.0
 /
 
 &force_parameters
-turb=.true.
 kfp1=1
 kfp2=2
 kfz1=1
@@ -47,11 +55,9 @@ epsm=-1.0
 /
 
 &output_parameters
-iout=10
-ispec=-1
-ifields=1000
-tspec=10
-tfields=10
+iout=1
+isnap=-1
+tsnap=-1
 /
 
 &restart_parameters

@@ -30,7 +30,7 @@ real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
 !output
 integer :: iout=50,ispec=-1,isnap=1000000
 logical :: llastsnap=.true.
-real :: tspec=2.*pi,tsnap=2.*pi
+real :: tspec=-1.0,tsnap=2.*pi
 character(len=100) :: tsfile="ts.dat"
 character(len=100) :: datadir="data",rundir="./"
 !restart
@@ -58,7 +58,7 @@ subroutine read_parameters(inputfile)
     namelist /scheme_parameters/ lnonlinear,ladvect,ldiffuse,lforce,rkorder
     namelist /box_parameters/ lx,ly,lz,nlx,nly,nlz,npperp,npz
     namelist /time_parameters/ tmax, imax,cfl_frac
-    namelist /diss_parameters/ hyper_order,nu
+    namelist /diss_parameters/ hyper_order,nu,znu
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, isnap, tspec,tsnap,tsfile,datadir
@@ -67,28 +67,20 @@ subroutine read_parameters(inputfile)
     open(unit=10,file=trim(inputfile),status='old')
     read(10,nml=scheme_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading scheme parameters failed"
-        write(*,nml=scheme_parameters)
     read(10,nml=box_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading box_parameters failed"
-        write(*,nml=box_parameters)
     read(10,nml=time_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading time_parameters failed"
-        write(*,nml=time_parameters)
     read(10,nml=diss_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading diss_parameters failed"
-        write(*,nml=diss_parameters)
     read(10,nml=start_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading start_parameters failed"
-        write(*,nml=start_parameters)
     read(10,nml=force_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading force_parameters failed"
-        write(*,nml=force_parameters)
     read(10,nml=output_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading output_parameters failed"
-        write(*,nml=output_parameters)
     read(10,nml=restart_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading restart_parameters failed"
-        write(*,nml=restart_parameters)
     close(10)
 
     lx=2.*pi*lx
