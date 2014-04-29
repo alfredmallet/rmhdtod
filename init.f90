@@ -61,7 +61,8 @@ subroutine read_parameters(inputfile)
     namelist /diss_parameters/ hyper_order,nu,znu
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
-    namelist /output_parameters/ iout, ispec, isnap, tspec,tsnap,tsfile,datadir
+    namelist /output_parameters/ iout, ispec, isnap,
+tspec,tsnap,tsfile,datadir,llastsnap
     namelist /restart_parameters/ restart,rsfile,rspath
 
     open(unit=10,file=trim(inputfile),status='old')
