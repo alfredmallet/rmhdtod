@@ -49,7 +49,6 @@ subroutine force(kfz,eps,dt,spk,smk,field)
     kfp=sqrt(kfs(ik,1)**2.+kfs(ik,2)**2.)
     ! choose amplitude and phase
     amp=sqrt(-eps/dt/kfp**2.0*log(uniran()))*sqrt(1.0*nlx*nly) !N.B. may depend on fft convention
-    if (proc0) write(*,*) "forcing w", amp
     phi=pi*(2.0*uniran()-1.0)
     ! convert to array indices
     sgn=sign(1,kfs(ik,1))

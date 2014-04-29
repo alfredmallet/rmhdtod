@@ -3,9 +3,9 @@
 !***************************************************
 
 &scheme_parameters
-lnonlinear=.false.
-ladvect=.false.
-ldiffuse=.false.
+lnonlinear=.true.
+ladvect=.true.
+ldiffuse=.true.
 lforce=.true.
 rkorder=3
 /
@@ -14,27 +14,27 @@ rkorder=3
 lx=1.0
 ly=1.0
 lz=1.0
-nlx=32
-nly=32
-nlz=32
-npperp=4
-npz=4
+nlx=256
+nly=256
+nlz=256
+npperp=16
+npz=16
 /
 
 &time_parameters
 tmax=10
-imax=1
+imax=10000
 cfl_frac=0.25
 /
 
 &diss_parameters
-hyper_order=3
-nu=0.1
-znu=1e-4
+hyper_order=4
+nu=1e-12
+znu=6e-4
 /
 
 &start_parameters
-ampzp=1.0
+ampzp=0.0
 ampzm=0.0
 initfield="wave"
 kipx=1.0
@@ -57,7 +57,7 @@ epsm=-1.0
 &output_parameters
 iout=1
 isnap=-1
-tsnap=-1
+tsnap=5
 /
 
 &restart_parameters
