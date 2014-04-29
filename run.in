@@ -4,9 +4,9 @@
 
 &scheme_parameters
 lnonlinear=.false.
-ladvect=.true.
+ladvect=.false.
 ldiffuse=.false.
-lforce=.false.
+lforce=.true.
 rkorder=3
 /
 
@@ -23,19 +23,19 @@ npz=4
 
 &time_parameters
 tmax=10
-imax=100
+imax=1
 cfl_frac=0.25
 /
 
 &diss_parameters
 hyper_order=3
 nu=0.1
-znu=0.1
+znu=1e-4
 /
 
 &start_parameters
-ampzp=1.
-ampzm=0.5
+ampzp=1.0
+ampzm=0.0
 initfield="wave"
 kipx=1.0
 kipy=0.0

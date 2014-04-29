@@ -49,6 +49,7 @@ subroutine force(kfz,eps,dt,spk,smk,field)
     kfp=sqrt(kfs(ik,1)**2.+kfs(ik,2)**2.)
     ! choose amplitude and phase
     amp=sqrt(-eps/dt/kfp**2.0*log(uniran()))*sqrt(1.0*nlx*nly) !N.B. may depend on fft convention
+    if (proc0) write(*,*) "forcing w", amp
     phi=pi*(2.0*uniran()-1.0)
     ! convert to array indices
     sgn=sign(1,kfs(ik,1))
@@ -210,14 +211,19 @@ end subroutine smooth
 
 real function meanmult(ak,bk)
 !   mean of ab using Parseval's theorem
-    use mp, only: sum_reduce
+    use mp, only: sum_reduce,iproc
+    use init, only: npperp
     implicit none
 
     complex, dimension(:,:,:), intent(in) :: ak,bk
     
-    meanmult=0.0 
-    meanmult=sum(ak(1,:,:)*conjg(bk(1,:,:)))+2.0*sum(ak(2,:,:)*conjg(bk(2,:,:)))
-    meanmult=meanmult/2.0/nkx/nky/nlz
+    meanmult=0.0
+    if (mod(iproc,npperp).eq.0) then
+        meanmult=sum(ak(:,1,:)*conjg(bk(:,1,:)))+2.0*sum(ak(:,2:,:)*conjg(bk(:,2:,:)))
+    else
+        meanmult=sum(ak*conjg(bk))+2.0*sum(ak*conjg(bk))
+    endif
+    meanmult=meanmult/nlx/nly/nlz
     call sum_reduce(meanmult,0)
 
 end function meanmult

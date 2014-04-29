@@ -77,6 +77,7 @@ else
     zm(:,:,:)=0
 endif
 
+
 !TODO: other initfield options, like "norm"
 
 dt=1e10 !setting timestep to a large number
@@ -119,14 +120,12 @@ timeloop: do
 
     !are we going to output to the timeseries?
     lout=(mod(it,iout).eq.0)
-    write(*,*) it, imax
-    !are we going to stop?
-    llast=((it.ge.imax).and.(imax.ge.0)).or.((t.ge.tmax).and.(tmax.ge.0))
-    write(*,*) llast
     !stopping gracefully - looks for STOP in the run directory
     filename=trim(rundir)//"STOP"
     if (proc0) inquire(file=trim(filename),exist=llast) 
     call broadcast(llast) 
+    !are we going to stop?
+    llast=((llast).or.((it.ge.imax).and.(imax.ge.0)).or.((t.ge.tmax).and.(tmax.ge.0)))
 
     call smooth(zpk)
     call smooth(zmk)
@@ -179,6 +178,7 @@ timeloop: do
                 fac=lz/2./pi
                 kfz=nint(kfz1*fac-0.5*uniran()*(fac*kfz2-fac*kfz1+1.0))/fac
                 kfz=kfz*nint(sign(1.0,(2.0*uniran()-1.0)))
+                if (proc0) write(*,*) "kfz,",kfz,it
                 if (epsm.ge.0) then !elsasser forcing
                     if (epsp.gt.0) call force(kfz,epsp,dt/s,spk,smk,'p')
                     kfz=nint(kfz1*fac-0.5*uniran()*(fac*kfz2-fac*kfz1+1.0))/fac
@@ -195,7 +195,8 @@ timeloop: do
             call multkn(spk,dum)
             wfp=meanmult(dum,zpk)*dt-wnlp
             call multkn(smk,dum)
-            wfm=meanmult(dum,zmk)*dt-wnlm   
+            wfm=meanmult(dum,zmk)*dt-wnlm 
+            if (proc0) write(*,*) "wfp", wfp  
         endif
 
         !linear (advection) term 
@@ -221,7 +222,6 @@ timeloop: do
 
         !diffusion term and timestepping
         if (ldiffuse) then
-            write(*,*) it, "doing diffusion"
             dum=-nu*dt/s
             call multkn(dum,n=2*hyper_order)
             where (abs(dum).gt.small)
@@ -295,8 +295,7 @@ timeloop: do
     !    call spectra(filename,zpk,zmk,t)
     !
     !endif
-
-    if (llast) exit
+    if (llast) exit timeloop
 
 enddo timeloop
 
@@ -321,19 +320,19 @@ subroutine outputts(filename)
 
     !energies and amplitudes
     call multkn(zpk,dum2)
-    ep=-meanmult(zpk,dum2) ! energy in z+ fluctuations
+    ep=meanmult(zpk,dum2) ! energy in z+ fluctuations
     call multkn(zmk,dum)    
-    em=-meanmult(zmk,dum) ! energy in z- fluctuations
+    em=meanmult(zmk,dum) ! energy in z- fluctuations
     phik=0.5*(zpk+zmk)
     call multkn(phik,dum)
-    eu=-meanmult(phik,dum) ! energy in velocity fluctuations
+    eu=meanmult(phik,dum) ! energy in velocity fluctuations
     psik=0.5*(zpk-zmk)
     call multkn(psik,dum)
-    eb=-meanmult(psik,dum) ! energy in magnetic fluctuations
+    eb=meanmult(psik,dum) ! energy in magnetic fluctuations
     rmszp=sqrt(meanmult(zpk,zpk)) ! rms z+
     rmszm=sqrt(meanmult(zmk,zmk)) ! rms z-
-    er=-meanmult(zmk,dum2) ! <z+.z->, residual energy
-    h=-meanmult(phik,dum) ! <u.b>, cross-helicity
+    er=meanmult(zmk,dum2) ! <z+.z->, residual energy
+    h=meanmult(phik,dum) ! <u.b>, cross-helicity
 
     if (proc0.and.lfirst) then
         open(35,file=trim(datadir)//"/"//trim(filename),recl=10000,position="append")
@@ -355,7 +354,6 @@ subroutine outputts(filename)
     endif
 
     if (proc0) then 
-        write(*,*) it,t,ep,em,eu,eb,er,h,rmszp,rmszm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
         write(astring,'(I10,18G25.8)') it,t,ep,em,eu,eb,er,h,rmszp,rmszm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
         !write(astring,'(I10,18G25.8)') it,t,Ep,Em,Eu,Eb,Er,H,zp,zm,wnup,wnum,wnlp,wnlm,wadp,wadm,wfp,wfm,dt
         if (present(filename)) then
