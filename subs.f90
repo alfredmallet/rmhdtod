@@ -166,7 +166,7 @@ subroutine multkn(ak,knhak,n)
                     if ((iglobal.eq.1).and.(j.eq.1)) then
                         knhak(j,i,k)=0.0
                     else
-                        knhak(j,i,k)=(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
+                        knhak(j,i,k)=sqrt(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
                     endif
                 enddo
             enddo
@@ -179,7 +179,7 @@ subroutine multkn(ak,knhak,n)
                     if ((iglobal.eq.1).and.(j.eq.1)) then
                         ak(j,i,k)=0.0
                     else
-                        ak(j,i,k)=(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
+                        ak(j,i,k)=sqrt(ky(j)**2+kx(i)**2)**power * ak(j,i,k)
                     endif
                 enddo
             enddo
