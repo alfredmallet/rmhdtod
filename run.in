@@ -3,9 +3,9 @@
 !***************************************************
 
 &scheme_parameters
-lnonlinear=.true.
+lnonlinear=.false.
 ladvect=.true.
-ldiffuse=.false.
+ldiffuse=.true.
 lforce=.false.
 rkorder=3
 /
@@ -14,9 +14,9 @@ rkorder=3
 lx=1.0
 ly=1.0
 lz=1.0
-nlx=256
-nly=256
-nlz=256
+nlx=32
+nly=32
+nlz=32
 npperp=4
 npz=4
 /
@@ -28,8 +28,8 @@ cfl_frac=0.25
 /
 
 &diss_parameters
-hyper_order=4
-nu=0.0
+hyper_order=3
+nu=0.1
 znu=1e-4
 /
 
