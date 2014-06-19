@@ -265,14 +265,14 @@ timeloop: do
     if (lout) call outputts(tsfile)
 
     !snapshot
-    lsnap=((isnap.gt.0).and.(mod(isnap,it).eq.0))
+    lsnap=((isnap.gt.0).and.(modulo(it,isnap).eq.0))
     lsnap=(lsnap.or.((tsnap.gt.0).and.((t-tlastsnap).ge.tsnap)))
     lsnap=(lsnap.or.(llast.and.llastsnap))
     if (lsnap) then
         
         tlastsnap=t
         isnapfile=isnapfile+1 
-        write(itstr,"(I0)") isnapfile      
+        write(itstr,"(I4.4)") isnapfile      
         filename="snap"//trim(itstr)//".dat"
         do k=1,nlz_par    
             call ifft(zpk(:,:,k),zp(:,:,k))

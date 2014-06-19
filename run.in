@@ -5,7 +5,7 @@
 &scheme_parameters
 lnonlinear=.false.
 ladvect=.true.
-ldiffuse=.true.
+ldiffuse=.false.
 lforce=.false.
 rkorder=3
 /
@@ -22,8 +22,8 @@ npz=4
 /
 
 &time_parameters
-tmax=10
-imax=1000
+tmax=100
+imax=200
 cfl_frac=0.25
 /
 
@@ -56,8 +56,8 @@ epsm=-1.0
 
 &output_parameters
 iout=50
-isnap=-1
-tsnap=5
+isnap=10
+tsnap=100
 llastsnap=.false.
 /
 
