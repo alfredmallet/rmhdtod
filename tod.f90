@@ -29,6 +29,7 @@ character(len=100) :: runname, inputfile
 character(len=100) :: filename
 character(len=10) :: itstr
 character(len=10) :: procstr
+character(len=100) :: rsloc
 
 !********** Initialization **********
 
@@ -59,24 +60,35 @@ call init_grid
 call init_transforms
 
 !***** Setting initial fields, if required *****
-
-if (initfield.eq."wave") then
-    if (proc0) then
-        write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes, kip=",kipx,kipy,kipz,"kim=",kimx,kimy,kimz,"ampzp=",ampzp,"ampzm=",ampzm
-    endif
-    do k=1,nlz_par
-        do j=1,nly_par
-            do i=1,nlx
-                zp(i,j,k)=ampzp*sin(2.*pi*(kipx*xx(i)/lx+kipy*yy(j)/ly+kipz*zz(k)/lz))
-                zm(i,j,k)=ampzm*sin(2.*pi*(kimx*xx(i)/lx+kimy*yy(j)/ly+kimz*zz(k)/lz))
+if (restart.eq.0) then
+    if (initfield.eq."wave") then
+        if (proc0) then
+            write(*,*) "Sinusoidal initial field with given wavenumbers and amplitudes, kip=",kipx,kipy,kipz,"kim=",kimx,kimy,kimz,"ampzp=",ampzp,"ampzm=",ampzm
+        endif
+        do k=1,nlz_par
+            do j=1,nly_par
+                do i=1,nlx
+                    zp(i,j,k)=ampzp*sin(2.*pi*(kipx*xx(i)/lx+kipy*yy(j)/ly+kipz*zz(k)/lz))
+                    zm(i,j,k)=ampzm*sin(2.*pi*(kimx*xx(i)/lx+kimy*yy(j)/ly+kimz*zz(k)/lz))
+                enddo
             enddo
         enddo
-    enddo
+    else
+        zp(:,:,:)=0
+        zm(:,:,:)=0
+    endif
+    isnapfile=0
+    tlastsnap=0.0
+    it=0
+    t=0.0
 else
-    zp(:,:,:)=0
-    zm(:,:,:)=0
-endif
-
+    rsloc=trim(rspath)//"/"//trim(rsfile)
+    call loadsnap(trim(rsloc))
+    isnapfile=irsfile
+    tlastsnap=rstime
+    it=itrs
+    t=rstime
+endif 
 
 !TODO: other initfield options, like "norm"
 
@@ -97,10 +109,10 @@ enddo
 call outputts(tsfile)
 
 !start of the timestep
-isnapfile=0
-tlastsnap=0.0
-it=0
-t=0.0
+!isnapfile=0
+!tlastsnap=0.0
+!it=0
+!t=0.0
 
 timeloop: do
 

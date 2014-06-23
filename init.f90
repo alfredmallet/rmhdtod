@@ -37,6 +37,8 @@ character(len=100) :: datadir="data",rundir="./"
 integer :: restart=0
 character(len=100) :: rsfile="snap_old.dat"
 character(len=100) :: rspath=""
+integer :: irsfile=0, itrs=0
+real :: rstime=0.0
 !definitions
 integer :: nkx, nky
 integer :: kmax,kperpmax
@@ -62,7 +64,7 @@ subroutine read_parameters(inputfile)
     namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, isnap,tspec,tsnap,tsfile,datadir,llastsnap
-    namelist /restart_parameters/ restart,rsfile,rspath
+    namelist /restart_parameters/ restart,rsfile,rspath,irsfile,itrs,rstime
 
     open(unit=10,file=trim(inputfile),status='old')
     read(10,nml=scheme_parameters,iostat=ierr)

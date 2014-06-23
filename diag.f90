@@ -36,6 +36,29 @@ subroutine savesnap(filename,zp,zm,t)
 
 end subroutine savesnap
 
+subroutine loadsnap(filename)
+    use init, only: nlx,nly_par,nlz_par
+    use mp, only: iproc,proc0
+    implicit none
+
+    integer :: i,j,k
+    character(len=100),intent(in) :: filename
+    real, dimension(nlx,nly_par,nlz_par) :: zp,zm
+    character(len=10) :: procstr
+    
+    write(procstr,"(I0)") iproc
+    open(75,file=trim(filename))
+    do k=1,nlz_par
+        do j=1,nly_par
+            do i=1,nlx
+                read(75,*) zp(i,j,k), zm(i,j,k)
+            enddo
+        enddo
+    enddo
+    close(75)
+
+end subroutine loadsnap
+
 subroutine saveksnap(filename,zpk,zmk)
 !   not used: may be useful for tests    
     use init, only: nky,nkx_par,nlz_par
