@@ -14,22 +14,22 @@ rkorder=3
 lx=1.0
 ly=1.0
 lz=1.0
-nlx=256
-nly=256
-nlz=256
-npperp=16
-npz=64
+nlx=32
+nly=32
+nlz=32
+npperp=4
+npz=4
 /
 
 &time_parameters
-tmax=16.0
+tmax=10000.0
 imax=1e6
 cfl_frac=0.25
 /
 
 &diss_parameters
 hyper_order=4
-nu=1e-12
+nu=0.1
 znu=1e-4
 /
 
@@ -62,10 +62,10 @@ llastsnap=.true.
 /
 
 &restart_parameters
-restart=0
-rsfile="old_fields.dat"
-rspath=""
-irsfile=0
-itrs=0
-rstime=0.0
+restart=1
+rsfile="snap0004.dat"
+rspath="/work/01022/tg802750/tod/newtests/force_test/data"
+irsfile=4
+itrs=8152
+rstime=400.160364239577
 /

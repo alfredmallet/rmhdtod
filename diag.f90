@@ -36,18 +36,18 @@ subroutine savesnap(filename,zp,zm,t)
 
 end subroutine savesnap
 
-subroutine loadsnap(filename)
+subroutine loadsnap(locsnap,fsnap,zp,zm)
     use init, only: nlx,nly_par,nlz_par
     use mp, only: iproc,proc0
     implicit none
 
     integer :: i,j,k
-    character(len=100),intent(in) :: filename
+    character(len=100),intent(in) :: locsnap,fsnap
     real, dimension(nlx,nly_par,nlz_par) :: zp,zm
     character(len=10) :: procstr
     
     write(procstr,"(I0)") iproc
-    open(75,file=trim(filename))
+    open(75,file=trim(locsnap)//"/"//trim(procstr)//"/"//trim(fsnap))
     do k=1,nlz_par
         do j=1,nly_par
             do i=1,nlx

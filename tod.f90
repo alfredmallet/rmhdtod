@@ -82,13 +82,15 @@ if (restart.eq.0) then
     it=0
     t=0.0
 else
-    rsloc=trim(rspath)//"/"//trim(rsfile)
-    call loadsnap(trim(rsloc))
+    call loadsnap(rspath,rsfile,zp,zm)
     isnapfile=irsfile
     tlastsnap=rstime
     it=itrs
     t=rstime
 endif 
+
+filename="start.dat"
+call savesnap(filename,zp,zm,t)
 
 !TODO: other initfield options, like "norm"
 
