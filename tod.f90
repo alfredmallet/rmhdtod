@@ -88,7 +88,7 @@ else
     it=itrs
     t=rstime
 endif 
-
+call barrier
 filename="start.dat"
 call savesnap(filename,zp,zm,t)
 
