@@ -17,11 +17,11 @@ implicit none
 
 integer :: i,j,k,it=0,ip,irk
 
-real :: t=0,dt,tlastsnap,tlastspec,small,dtva,maxgzx,maxgzy,s,wnlp=0,wnlm=0
-real :: fac,kfz,wfp=0,wfm=0,wadp=0,wadm=0,wnup=0,wnum=0
+real :: t=0d0,dt,tlastsnap,tlastspec,small,dtva,maxgzx,maxgzy,s,wnlp=0d0,wnlm=0d0
+real :: fac,kfz,wfp=0d0,wfm=0d0,wadp=0d0,wadm=0d0,wnup=0d0,wnum=0d0
 
 real, dimension(:,:,:), allocatable :: zp,zm,rdum
-complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum,zpk0,zmk0
+complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum,dum2,zpk0,zmk0
 real, dimension(:,:,:,:), allocatable :: gzp,gzm,gsp,gsm
 logical :: llast=.false.,lout=.false.,lsnap
 
@@ -53,6 +53,7 @@ allocate(zmk0(nky,nkx_par,nlz_par))
 allocate(spk(nky,nkx_par,nlz_par))
 allocate(smk(nky,nkx_par,nlz_par))
 allocate(dum(nky,nkx_par,nlz_par))
+allocate(dum2(nky,nkx_par,nlz_par))
 
 allocate(rdum(nky,nkx_par,nlz_par))
 call init_mp
@@ -74,13 +75,13 @@ if (restart.eq.0) then
             enddo
         enddo
     else
-        zp(:,:,:)=0
-        zm(:,:,:)=0
+        zp(:,:,:)=0d0
+        zm(:,:,:)=0d0
     endif
     isnapfile=0
     tlastsnap=0.0
     it=0
-    t=0.0
+    t=0d0
 else
     call loadsnap(rspath,rsfile,zp,zm)
     isnapfile=irsfile
@@ -94,7 +95,7 @@ call savesnap(filename,zp,zm,t)
 
 !TODO: other initfield options, like "norm"
 
-dt=1e10 !setting timestep to a large number
+dt=1d10 !setting timestep to a large number
 !alfven speed=1, won't change:
 dtva=cfl_frac*dz
 
@@ -151,8 +152,8 @@ timeloop: do
         
         s=dble(irk)
         
-        spk=0.0
-        smk=0.0
+        spk=0d0
+        smk=0d0
         
         !nl term - reusing names of arrays to save memory
         if (lnonlinear) then
@@ -170,8 +171,8 @@ timeloop: do
             call multkn(smk,spk,n=-2)
             call crossk(gzp,gzm,dum) !{zp,zm}
 
-            smk=0.5*(spk+dum)
-            spk=0.5*(spk-dum)
+            smk=0.5d0*(spk+dum)
+            spk=0.5d0*(spk-dum)
 
             call smooth(smk)
             call smooth(spk)
@@ -235,26 +236,23 @@ timeloop: do
 
         !diffusion term and timestepping
         if (ldiffuse) then
-            dum=-nu*dt/s
+            dum=-nu*dt/(1d0*s)
             call multkn(dum,n=2*hyper_order)
             where (abs(dum).gt.small)
-                dum=exp(-abs(dum))
+                dum2=exp(-abs(dum))
+                dum=1d0-dum2
             elsewhere 
-                dum=abs(1.0+dum+dum*dum/2.0)
+                dum2=abs(1d0+dum+dum*dum/2d0)
+                dum=-dum-dum*dum/2d0
             endwhere
-            
-            zpk=zpk0*dum
-            zmk=zmk0*dum
-
-            dum=1-dum
+            zpk=zpk0*dum2
+            zmk=zmk0*dum2
             call multkn(dum,n=-2*hyper_order)
-
             zpk=zpk+spk*dum/nu
             zmk=zmk+smk*dum/nu
-           
             if (mod(iproc,npperp).eq.0) then 
-                zpk(1,1,:)=0
-                zmk(1,1,:)=0
+                zpk(1,1,:)=0d0
+                zmk(1,1,:)=0d0
             endif
         
         else

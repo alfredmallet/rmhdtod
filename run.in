@@ -11,38 +11,38 @@ rkorder=3
 /
 
 &box_parameters
-lx=1.0
-ly=1.0
-lz=1.0
-nlx=1024
-nly=1024
-nlz=1024
+lx=1d0
+ly=1d0
+lz=1d0
+nlx=256
+nly=256
+nlz=256
 npperp=16
-npz=256
+npz=16
 /
 
 &time_parameters
-tmax=10.0
-imax=1e8
-cfl_frac=0.25
+tmax=1000.0
+imax=10
+cfl_frac=0.25d0
 /
 
 &diss_parameters
 hyper_order=4
-nu=2.5e-17
-znu=1.5e-4
+nu=1d-17
+znu=6d-4
 /
 
 &start_parameters
-ampzp=0.0
-ampzm=0.0
+ampzp=0d0
+ampzm=0d0
 initfield="wave"
-kipx=1.0
-kipy=0.0
-kipz=1.0
-kimx=0.0
-kimy=1.0
-kimz=1.0
+kipx=1d0
+kipy=0d0
+kipz=1d0
+kimx=0d0
+kimy=1d0
+kimz=1d0
 /
 
 &force_parameters
@@ -50,12 +50,12 @@ kfp1=1
 kfp2=2
 kfz1=1
 kfz2=1
-epsp=1.0
-epsm=-1.0
+epsp=1d0
+epsm=-1d0
 /
 
 &output_parameters
-iout=50
+iout=1
 isnap=-1.
 tsnap=5.
 llastsnap=.true.
