@@ -210,7 +210,6 @@ timeloop: do
             wfp=meanmult(dum,zpk)*dt-wnlp
             call multkn(smk,dum)
             wfm=meanmult(dum,zmk)*dt-wnlm 
-            if (proc0) write(*,*) "wfp", wfp  
         endif
 
         !linear (advection) term 
