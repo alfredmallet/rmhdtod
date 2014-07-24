@@ -14,23 +14,23 @@ rkorder=3
 lx=1d0
 ly=1d0
 lz=1d0
-nlx=256
-nly=256
-nlz=256
+nlx=1024
+nly=1024
+nlz=1024
 npperp=16
-npz=16
+npz=256
 /
 
 &time_parameters
-tmax=1000.0
-imax=10
+tmax=8d0
+imax=1000000000
 cfl_frac=0.25d0
 /
 
 &diss_parameters
 hyper_order=4
-nu=1d-17
-znu=6d-4
+nu=2.5d-17
+znu=1.5d-4
 /
 
 &start_parameters
@@ -55,17 +55,17 @@ epsm=-1d0
 /
 
 &output_parameters
-iout=1
+iout=50
 isnap=-1.
-tsnap=5.
+tsnap=2.
 llastsnap=.true.
 /
 
 &restart_parameters
-restart=0
-rsfile="snap0006.dat"
-rspath="/work/01022/tg802750/tod/newtests/turb_test/data"
-irsfile=6
-itrs=43600
-rstime=16.0001934479198
+restart=1
+rsfile="snap0002.dat"
+rspath="/work/01022/tg802750/tod/1024/data_1"
+irsfile=2
+itrs=19000
+rstime=4.00006551521938
 /

@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -J test           # job name
-#SBATCH -o test.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -J vec           # job name
+#SBATCH -o vec.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 4096              # total number of mpi tasks requested
 #SBATCH -p normal     # queue (partition) -- normal, development, etc.
-#SBATCH -t 48:00:00        # run time (hh:mm:ss)
+#SBATCH -t 01:00:00        # run time (hh:mm:ss)
 
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
@@ -11,4 +11,4 @@ for i in `seq 0 ${nprocm1}`; do
   mkdir -p data/$i
 done
 
-/usr/bin/time -p ibrun ./tod run              # run 
+/usr/bin/time -p ibrun ./vecwrite run              # run 

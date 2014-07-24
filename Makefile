@@ -22,6 +22,7 @@ MKLFLAGS = ${MKLFLAGS_${TOD_SYSTEM}}
 
 OBJS = tod.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o 
 
+VECOBJS = vecwrite.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
 .SUFFIXES: .f90
 
 .f90.o:
@@ -37,6 +38,11 @@ tod:	$(OBJS)
 debug: F90FLAGS += -g
 debug: tod
 
+vec: vecwrite
+
+vecwrite: $(VECOBJS)
+	  $(FC) $(F90FLAGS) -o vecwrite $(VECOBJS) $(FLIBS) $(MKLFLAGS)
+
 clean:
 	rm -f *.o *.mod
 
@@ -50,6 +56,7 @@ test_make:
 	@echo ${TOD_SYSTEM}
 #dependencies
 tod.o: init.o mp_mpi_r8.o transforms.o grid.o diag.o subs.o
+vecwrite.o: init.o mp_mpi_r8.o transforms.o grid.o diag.o subs.o
 grid.o: init.o fft_work_fftw.o
 transforms.o: init.mod fft_work_fftw.o grid.o redistribute_mpi.o
 diag.o: mp_mpi_r8.o init.mod grid.o transforms.o
