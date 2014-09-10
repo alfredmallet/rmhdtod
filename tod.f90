@@ -171,8 +171,8 @@ timeloop: do
             call multkn(smk,spk,n=-2)
             call crossk(gzp,gzm,dum) !{zp,zm}
 
-            smk=0.5d0*(spk+dum)
-            spk=0.5d0*(spk-dum)
+            smk=-0.5d0*(spk+dum)
+            spk=-0.5d0*(spk-dum)
 
             call smooth(smk)
             call smooth(spk)

@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -J vec           # job name
-#SBATCH -o vec.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -J vec_28           # job name
+#SBATCH -o vec_28.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 4096              # total number of mpi tasks requested
 #SBATCH -p normal     # queue (partition) -- normal, development, etc.
 #SBATCH -t 01:00:00        # run time (hh:mm:ss)
@@ -8,7 +8,7 @@
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
 for i in `seq 0 ${nprocm1}`; do
-  mkdir -p data/$i
+  mkdir -p /scratch/01022/tg802750/1024/vecdata_28/$i
 done
 
 /usr/bin/time -p ibrun ./vecwrite run              # run 

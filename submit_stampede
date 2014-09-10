@@ -3,7 +3,7 @@
 #SBATCH -o test.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 4096              # total number of mpi tasks requested
 #SBATCH -p normal     # queue (partition) -- normal, development, etc.
-#SBATCH -t 48:00:00        # run time (hh:mm:ss)
+#SBATCH -t 20:00:00        # run time (hh:mm:ss)
 
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))

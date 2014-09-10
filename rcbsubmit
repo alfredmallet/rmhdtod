@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH -J rcb_26           # job name
+#SBATCH -o rcb_26.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -n 16             # total number of mpi tasks requested
+#SBATCH -p largemem     # queue (partition) -- normal, development, etc.
+#SBATCH -t 20:00:00        # run time (hh:mm:ss)
+
+nproc=$SLURM_NTASKS
+nprocm1=$(($nproc-1))
+for i in `seq 0 ${nprocm1}`; do
+  mkdir -p /scratch/01022/tg802750/1024/rcbdata_26/$i
+done
+
+/usr/bin/time -p ibrun ./rcb insf              # run 

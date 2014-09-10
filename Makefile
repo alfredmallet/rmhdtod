@@ -23,6 +23,19 @@ MKLFLAGS = ${MKLFLAGS_${TOD_SYSTEM}}
 OBJS = tod.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o 
 
 VECOBJS = vecwrite.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+SFOBJS = sf.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+SF2OBJS = sf2d.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+SF3OBJS = sf3d.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+BINOBJS = bin.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+RCBOBJS = rcb.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
+2DBINOBJS = 2dbin.o fft_work_fftw.o init.o transforms.o grid.o mp_mpi_r8.o redistribute_mpi.o subs.o diag.o
+
 .SUFFIXES: .f90
 
 .f90.o:
@@ -42,6 +55,22 @@ vec: vecwrite
 
 vecwrite: $(VECOBJS)
 	  $(FC) $(F90FLAGS) -o vecwrite $(VECOBJS) $(FLIBS) $(MKLFLAGS)
+
+sf2d:	$(SF2OBJS)
+	$(FC) $(F90FLAGS) -o sf2d $(SF2OBJS) $(FLIBS) $(MKLFLAGS)
+
+
+sf3d:	$(SF3OBJS)
+	$(FC) $(F90FLAGS) -o sf3d $(SF3OBJS) $(FLIBS) $(MKLFLAGS)
+
+bin:	$(BINOBJS)
+	$(FC) $(F90FLAGS) -o bin $(BINOBJS) $(FLIBS) $(MKLFLAGS)
+
+2dbin: $(2DBINOBJS)
+	$(FC) $(F90FLAGS) -o 2dbin $(2DBINOBJS) $(FLIBS) $(MKLFLAGS)
+
+rcb:	$(RCBOBJS)
+	$(FC) $(F90FLAGS) -o rcb $(RCBOBJS) $(FLIBS) $(MKLFLAGS)
 
 clean:
 	rm -f *.o *.mod

@@ -22,7 +22,7 @@ npz=256
 /
 
 &time_parameters
-tmax=8d0
+tmax=32d0
 imax=1000000000
 cfl_frac=0.25d0
 /
@@ -63,9 +63,9 @@ llastsnap=.true.
 
 &restart_parameters
 restart=1
-rsfile="snap0002.dat"
-rspath="/work/01022/tg802750/tod/1024/data_1"
-irsfile=2
-itrs=19000
-rstime=4.00006551521938
+rsfile="snap0015.dat"
+rspath="/work/01022/tg802750/tod/1024/data_26_28"
+irsfile=15
+itrs=401100
+rstime=28.5313257557143
 /

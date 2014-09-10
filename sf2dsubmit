@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH -J sf2_mult           # job name
+#SBATCH -o sf2_mult.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -n 16             # total number of mpi tasks requested
+#SBATCH -p development     # queue (partition) -- normal, development, etc.
+#SBATCH -t 02:00:00        # run time (hh:mm:ss)
+
+nproc=$SLURM_NTASKS
+nprocm1=$(($nproc-1))
+for i in `seq 0 ${nprocm1}`; do
+  mkdir -p /scratch/01022/tg802750/1024/2dsfdata_test10/$i
+done
+
+/usr/bin/time -p ibrun ./sf2 insf /scratch/01022/tg802750/1024/2dsfdata_test10 /scratch/01022/tg802750/1024/vecdata_10             # run 

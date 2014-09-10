@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -J 2dbin           # job name
+#SBATCH -o 2dbin.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -n 16             # total number of mpi tasks requested
+#SBATCH -p development     # queue (partition) -- normal, development, etc.
+#SBATCH -t 01:00:00        # run time (hh:mm:ss)
+
+nproc=$SLURM_NTASKS
+nprocm1=$(($nproc-1))
+
+/usr/bin/time -p ibrun ./2dbinner insf              # run 

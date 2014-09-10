@@ -11,7 +11,7 @@ use subs
 implicit none
 
 integer :: i,j,k
-character(len=100) :: scalzpf="snap0004.dat",scalzp="/work/01022/tg802750/tod/newtests/force_test/data",vfilename="vec.dat",procstr,runname,inputfile
+character(len=100) :: scalzpf="snap0014.dat",scalzp="/work/01022/tg802750/tod/1024/data",vfold="/scratch/01022/tg802750/1024/vecdata_28",vfilename="vec.dat",procstr,runname,inputfile
 real, dimension(:,:,:), allocatable :: zp,zm
 real, dimension(:,:,:,:), allocatable :: gzp,gzm,vzp,vzm
 complex, dimension(:,:,:), allocatable :: zpk,zmk
@@ -65,11 +65,10 @@ vzm(:,:,:,1)=-gzm(:,:,:,2)
 vzm(:,:,:,2)=gzm(:,:,:,1)
 !write vecs to file
 write(procstr,"(I0)") iproc
-open(10,file=trim(datadir)//"/"//trim(procstr)//"/"//trim(vfilename))
+open(10,file=trim(vfold)//"/"//trim(procstr)//"/"//trim(vfilename))
 do k=1,nlz_par
     do j=1,nly_par
         do i=1,nlx
-            write(*,*) vzp(i,j,k,1), vzp(i,j,k,2), vzm(i,j,k,1), vzm(i,j,k,2)
             write(10,'(4G25.8)') vzp(i,j,k,1), vzp(i,j,k,2), vzm(i,j,k,1), vzm(i,j,k,2)
         enddo
     enddo
