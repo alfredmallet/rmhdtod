@@ -11,4 +11,4 @@ for i in `seq 0 ${nprocm1}`; do
   mkdir -p /scratch/01022/tg802750/1024/rcbdata_26/$i
 done
 
-/usr/bin/time -p ibrun ./rcb insf              # run 
+/usr/bin/time -p ibrun ./rcb insf /scratch/01022/tg802750/1024/rcbdata_26 /scratch/01022/tg802750/1024/vecdata_26             # run 

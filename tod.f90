@@ -31,6 +31,9 @@ character(len=10) :: itstr
 character(len=10) :: procstr
 character(len=100) :: rsloc
 
+integer :: cc,cm
+real :: cr
+
 !********** Initialization **********
 
 small=(6*epsilon(1d0)**(1/3.))
@@ -59,6 +62,9 @@ allocate(rdum(nky,nkx_par,nlz_par))
 call init_mp
 call init_grid
 call init_transforms
+
+call system_clock(cc,cr,cm)
+cr=uniran(init=cc)
 
 !***** Setting initial fields, if required *****
 if (restart.eq.0) then
