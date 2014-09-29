@@ -15,7 +15,7 @@ integer :: orig_npz,zpointsperfile=4
 integer :: i,j,k
 character (len=100) :: fold0,vfilename="vec.dat",sfdir,wfold,wfile,runname,inputfile,vfold
 real, dimension(:,:,:,:), allocatable :: vzp,vzm
-integer :: isep,isamp,nsep=32,nsamp=10000,i0,j0,k0,skp,ifile
+integer :: isep,isamp,nsep=32,nsamp=90000,i0,j0,k0,skp,ifile
 real :: phi,theta,di,dj,dk,ti,tj,tk,azp,azm,au,ab,thetaBloc,thetapm,thetaub
 real, dimension(3) :: Bloc,Blochat
 real, dimension(2) :: dzp,dzm,du,db,zpp,zpm,zmp,zmm,dr
@@ -55,9 +55,6 @@ do isep=1,nsep
 enddo
 
 do ifile=0,npperp*orig_npz-1
-    
-    write(*,*) "Processor", iproc, "reporting that I am reading data in", ifile
-
     write(fold0,"(I0)") ifile
     open(10,file=trim(vfold)//"/"//trim(fold0)//"/"//trim(vfilename))
     do k=1,zpointsperfile

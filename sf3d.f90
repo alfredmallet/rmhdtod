@@ -50,6 +50,8 @@ do isep=1,nsep
   close(35)
 enddo
 
+write(*,*) "NLX,NLY,NLZ=", nlx,nly,nlz
+
 do ifile=0,npperp*orig_npz-1
     
     write(*,*) "Processor", iproc, "reporting that I am reading data in", ifile
@@ -167,7 +169,7 @@ do isep=1,nsep
         thetaBloc=acos((dr(1)*blochat(1)+dr(2)*blochat(2)+dr(3)*blochat(3))/sqrt(dr(1)**2+dr(2)**2+dr(3)**2))
         !calculate local perp separation
         rdotBloc=dr(1)*blochat(1)+dr(2)*blochat(2)+dr(3)*blochat(3)
-        rperp=dr-rdotBloc*bloc
+        rperp=dr-rdotBloc*Blochat
         rhatperp=rperp/sqrt(rperp(1)**2+rperp(2)**2+rperp(3)**2)
         !calculate local perpendicular fluctuation directions
         zpdotBloc=dzp(1)*blochat(1)+dzp(2)*blochat(2)

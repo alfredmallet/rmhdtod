@@ -10,7 +10,7 @@ use diag
 use subs
 implicit none
 
-character (len=100) :: runname, inputfile, sfdir="/scratch/01022/tg802750/1024/sfdata_10",wfile,procstr
+character (len=100) :: runname, inputfile, sfdir,wfile,procstr
 
 integer :: isep, nsep=32,isamp,nsamp=500000,iang,iali,nang=9,im,nm=10,wth
 
@@ -27,6 +27,7 @@ allocate(thetabins(nang))
 call getarg(1,runname)
 inputfile=trim(runname)//".in"
 call read_parameters(inputfile)
+call getarg(2,sfdir)
 
 call init_mp
 

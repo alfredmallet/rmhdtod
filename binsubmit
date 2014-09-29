@@ -2,10 +2,13 @@
 #SBATCH -J bin           # job name
 #SBATCH -o bin.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 16             # total number of mpi tasks requested
-#SBATCH -p normal     # queue (partition) -- normal, development, etc.
-#SBATCH -t 01:00:00        # run time (hh:mm:ss)
+#SBATCH -p development     # queue (partition) -- normal, development, etc.
+#SBATCH -t 02:00:00        # run time (hh:mm:ss)
 
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
 
-/usr/bin/time -p ibrun ./binner insf              # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_10         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_12         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_14         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_16         # run 

@@ -3,12 +3,22 @@
 #SBATCH -o sf3d.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 16             # total number of mpi tasks requested
 #SBATCH -p largemem     # queue (partition) -- normal, development, etc.
-#SBATCH -t 10:00:00        # run time (hh:mm:ss)
+#SBATCH -t 3:00:00        # run time (hh:mm:ss)
 
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
 for i in `seq 0 ${nprocm1}`; do
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_28/$i
   mkdir -p /scratch/01022/tg802750/1024/sfdata_26/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_24/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_22/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_20/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_18/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_16/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_14/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_12/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_10/$i
+  mkdir -p /scratch/01022/tg802750/1024/sfdata_8/$i
 done
 
-/usr/bin/time -p ibrun ./sf3 insf /scratch/01022/tg802750/1024/sfdata_10 /scratch/01022/tg802750/1024/vecdata_10             # run 
+/usr/bin/time -p ibrun ./sf3d insf /scratch/01022/tg802750/1024/sfdata_16 /scratch/01022/tg802750/1024/vecdata_16             # run
