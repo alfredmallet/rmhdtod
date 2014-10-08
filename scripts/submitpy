@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH -J rcb_spectrum           # job name
+#SBATCH -o rcb_spectrum.o%j       # output and error file name (%j expands to jobID)
+#SBATCH -n 1              # total number of mpi tasks requested
+#SBATCH -p serial     # queue (partition) -- normal, development, etc.
+#SBATCH -t 10:00:00        # run time (hh:mm:ss)
+
+/usr/bin/time -p ibrun python /work/01022/tg802750/tod/rmhdtod-code/py/spectrum.py              # run 
