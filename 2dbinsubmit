@@ -3,9 +3,18 @@
 #SBATCH -o 2dbin.o%j       # output and error file name (%j expands to jobID)
 #SBATCH -n 16             # total number of mpi tasks requested
 #SBATCH -p development     # queue (partition) -- normal, development, etc.
-#SBATCH -t 01:00:00        # run time (hh:mm:ss)
+#SBATCH -t 02:00:00        # run time (hh:mm:ss)
 
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
 
-/usr/bin/time -p ibrun ./2dbinner insf              # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_10         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_12         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_14         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_16         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_18         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_20         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_22         # run  
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_24         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_26         # run 
+/usr/bin/time -p ibrun ./2dbin insf /scratch/01022/tg802750/1024/2dsfdata_28         # run 

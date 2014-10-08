@@ -8,7 +8,13 @@
 nproc=$SLURM_NTASKS
 nprocm1=$(($nproc-1))
 
-/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_10         # run 
-/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_12         # run 
-/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_14         # run 
-/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata_16         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_10         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_12         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_14         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_16         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_18         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_20         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_22         # run  
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_24         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_26         # run 
+/usr/bin/time -p ibrun ./bin insf /scratch/01022/tg802750/1024/sfdata/sfdata_28         # run 

@@ -10,9 +10,9 @@ use diag
 use subs
 implicit none
 
-character (len=100) :: runname, inputfile, sfdir="/scratch/01022/tg802750/1024/2dsfdata_10",wfile,procstr
+character (len=100) :: runname, inputfile, sfdir,wfile,procstr
 
-integer :: isep, nsep=32,isamp,nsamp=256000,iali,nang=9,im,nm=10,wth
+integer :: isep, nsep=32,isamp,nsamp=256000,iali,nang=9,im,nm=20,wth
 
 real :: thetapm,thetaub
 real, dimension(4) :: amps, thetas
@@ -27,6 +27,7 @@ allocate(thetabins(nang))
 call getarg(1,runname)
 inputfile=trim(runname)//".in"
 call read_parameters(inputfile)
+call getarg(2,sfdir)
 
 call init_mp
 
