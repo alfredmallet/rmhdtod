@@ -117,6 +117,18 @@ subroutine grad(ak,ga)
 
 end subroutine grad
 
+subroutine cross(ga1,ga2,b)
+!crosses two real-space 2-vector fields
+    implicit none
+    
+    real, dimension(:,:,:,:), intent(in) :: ga1,ga2
+    real, dimension(:,:,:), intent(out) :: b
+    
+    b = ga1(:,:,:,1)*ga2(:,:,:,2) - ga1(:,:,:,2)*ga2(:,:,:,1)
+
+end subroutine cross
+
+
 subroutine crossk(ga1,ga2,bk)
 !crosses two real-space 2-vector fields and then goes to k-space
     use transforms, only: fft

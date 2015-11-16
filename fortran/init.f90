@@ -7,7 +7,8 @@ save
 
 real, parameter :: pi=3.1415926535
 !scheme
-logical :: lnonlinear=.true.,ladvect=.true.,ldiffuse=.true.,lforce=.true.
+logical ::
+lnonlinear=.true.,ladvect=.true.,ldiffuse=.true.,lforce=.true.,lequil=.false.
 integer :: rkorder=3
 !box
 real :: lx=1,ly=1,lz=1
@@ -24,6 +25,7 @@ real :: znu=0.0
 !start
 real :: ampzp=1.0,ampzm=0.5
 character(len=4) :: initfield="wave"
+character(len=100) :: equilfile='equil.dat'
 real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
@@ -57,11 +59,11 @@ subroutine read_parameters(inputfile)
     character(len=100), intent(in) :: inputfile
     integer  :: ierr
 
-    namelist /scheme_parameters/ lnonlinear,ladvect,ldiffuse,lforce,rkorder
+    namelist /scheme_parameters/ lnonlinear,ladvect,ldiffuse,lforce,lequil,rkorder
     namelist /box_parameters/ lx,ly,lz,nlx,nly,nlz,npperp,npz
     namelist /time_parameters/ tmax, imax,cfl_frac
     namelist /diss_parameters/ hyper_order,nu,znu
-    namelist /start_parameters/ ampzp,ampzm,initfield,kipx,kipy,kipz,kimx,kimy,kimz
+    namelist /start_parameters/ ampzp,ampzm,initfield,equil_file,kipx,kipy,kipz,kimx,kimy,kimz
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, isnap,tspec,tsnap,tsfile,datadir,llastsnap
     namelist /restart_parameters/ restart,rsfile,rspath,irsfile,itrs,rstime
