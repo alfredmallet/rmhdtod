@@ -168,12 +168,16 @@ timeloop: do
             call multkn(zpk,smk)
             call grad(zmk,gzm)
             call grad(smk,gsm)
-            call crossk(gzm,gsm,spk) !{zm,k2zp}
+            call cross(gzm,gsm,gsp) !{zm,k2zp}
+            !call crossk(gzm,gsm,spk) !{zm,k2zp}
             call multkn(zmk,smk)
             call grad(zpk,gzp)
             call grad(smk,gsm)
-            call crossk(gzp,gsm,dum) !{zp,k2zm}
-            smk=spk+dum
+            call cross(gzp,gsm,gzm) !{zp,k2zm}
+            !call crossk(gzp,gsm,dum) !{zp,k2zm}
+            !smk=spk+dum
+            gsp=gsp+gzm
+            smk=fft(gsp)
             call multkn(smk,spk,n=-2)
             call crossk(gzp,gzm,dum) !{zp,zm}
 
