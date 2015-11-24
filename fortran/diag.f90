@@ -59,6 +59,27 @@ subroutine loadsnap(locsnap,fsnap,zp,zm)
 
 end subroutine loadsnap
 
+subroutine loadeq(loceq,feq,zpeq,zmeq)
+    use init, only: nlx,nly_par,nlz_par
+    use mp, only: iproc,proc0
+    implicit none
+    
+    integer :: i,j,k
+    character(len=100),intent(in) :: loceq,feq
+    real,dimension(nlx,nly_par) :: zpeq,zmeq
+    character(len=10) :: procstr
+
+    write(procstr,"(I0)") iproc
+    open(76,file=trim(loceq)//"/"//trim(procstr)//"/"//trim(feq))
+    do j=1,nly_par
+        do i=1,nlx
+            read(76,*) zpeq(i,j), zmeq(i,j)
+        enddo
+    enddo
+    close(76)
+
+end subroutine loadeq
+
 subroutine saveksnap(filename,zpk,zmk)
 !   not used: may be useful for tests    
     use init, only: nky,nkx_par,nlz_par

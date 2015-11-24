@@ -117,6 +117,33 @@ subroutine grad(ak,ga)
 
 end subroutine grad
 
+subroutine grad2d(ak,ga)
+    
+    use transforms, only: fft,ifft
+    use grid, only: kx, ky
+    implicit none
+
+    real, dimension(:,:,:) :: ga
+    complex, dimension(:,:) :: ak
+    complex, allocatable, dimension(:,:,:) :: gak
+    integer :: i,j,xy
+
+    allocate(gak(nky,nkx_par,2))
+
+    do i=1,nkx_par
+        do j=1,nky
+            gak(j,i,1)=(0.0,1.0)*kx(i)*ak(j,i)
+            gak(j,i,2)=(0.0,1.0)*ky(j)*ak(j,i)
+        enddo
+    enddo
+    do xy=1,2
+        call ifft(gak(:,:,xy),ga(:,:,xy))
+    enddo
+
+    deallocate(gak)
+
+end subroutine grad2d
+
 subroutine cross(ga1,ga2,b)
 !crosses two real-space 2-vector fields
     implicit none
@@ -128,6 +155,16 @@ subroutine cross(ga1,ga2,b)
 
 end subroutine cross
 
+subroutine cross2d(ga1,ga2,b)
+    
+    implicit none
+
+    real, dimension(:,:,:), intent(in) :: ga1,ga2
+    real, dimension(:,:), intent(out) :: b
+
+    b = ga1(:,:,1)*ga2(:,:,2) - ga1(:,:,2)*ga2(:,:,1)
+
+end subroutine cross2d
 
 subroutine crossk(ga1,ga2,bk)
 !crosses two real-space 2-vector fields and then goes to k-space
@@ -199,6 +236,51 @@ subroutine multkn(ak,knhak,n)
     endif
 
 end subroutine multkn
+
+subroutine multkn2d(ak,knhak,n)
+
+    use grid, only: kx,ky
+    use mp, only: iproc
+    implicit none
+    
+    complex, dimension(:,:), intent(inout) :: ak
+    complex, dimension(:,:), optional, intent(out) :: knhak
+    integer, optional, intent(in) :: n
+    integer :: power,k,i,j,iglobal
+
+    if (present(n)) then
+        power=n
+    else
+        power=2
+    endif
+
+    if (present(knhak)) then
+        do i=1,nkx_par
+            iglobal=mod(iproc,npperp)*nkx_par+i
+            do j=1,nky
+                !need to take care of 0 mode in case n is -ve:
+                !corresponds to removing mean field
+                if ((iglobal.eq.1).and.(j.eq.1)) then
+                    knhak(j,i)=0.0
+                else
+                    knhak(j,i)=sqrt(ky(j)**2+kx(i)**2)**power * ak(j,i)
+                endif
+            enddo
+        enddo
+    else
+        do i=1,nkx_par
+            iglobal=mod(iproc,npperp)*nkx_par+i
+            do j=1,nky
+                if ((iglobal.eq.1).and.(j.eq.1)) then
+                    ak(j,i)=0.0
+                else
+                    ak(j,i)=sqrt(ky(j)**2+kx(i)**2)**power * ak(j,i)
+                endif
+            enddo
+        enddo
+    endif
+
+end subroutine multkn2d
 
 subroutine smooth(ak)
 

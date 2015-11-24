@@ -25,7 +25,7 @@ real :: znu=0.0
 !start
 real :: ampzp=1.0,ampzm=0.5
 character(len=4) :: initfield="wave"
-character(len=100) :: equilfile='equil.dat'
+character(len=100) :: equilfile="equil.dat",equilpath=""
 real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1

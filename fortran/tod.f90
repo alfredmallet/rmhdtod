@@ -101,6 +101,12 @@ call savesnap(filename,zp,zm,t)
 
 !TODO: other initfield options, like "norm"
 
+!Loading equilibrium field, if required
+if (lequil) then
+    call loadeq(equilpath,equilfile,zpeq,zmeq)
+    
+    
+
 dt=1d10 !setting timestep to a large number
 !alfven speed=1, won't change:
 dtva=cfl_frac*dz
@@ -164,7 +170,8 @@ timeloop: do
         !nl term - reusing names of arrays to save memory
         if (lnonlinear) then
             !gzm and gzp are used twice, so by separating grad from bracket can
-            !save some ffts 
+            !save some ffts
+            !saving one fft by changing to cross instead of crossk
             call multkn(zpk,smk)
             call grad(zmk,gzm)
             call grad(smk,gsm)
@@ -177,7 +184,9 @@ timeloop: do
             !call crossk(gzp,gsm,dum) !{zp,k2zm}
             !smk=spk+dum
             gsp=gsp+gzm
-            smk=fft(gsp)
+            do k=1,nlz_par
+                call fft(gsp(:,:,k),smk(:,:,k))
+            enddo
             call multkn(smk,spk,n=-2)
             call crossk(gzp,gzm,dum) !{zp,zm}
 
