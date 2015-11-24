@@ -23,6 +23,7 @@ real :: fac,kfz,wfp=0d0,wfm=0d0,wadp=0d0,wadm=0d0,wnup=0d0,wnum=0d0
 real, dimension(:,:,:), allocatable :: zp,zm,rdum
 complex,dimension(:,:,:), allocatable :: zpk,zmk,spk,smk,dum,dum2,zpk0,zmk0
 real, dimension(:,:,:,:), allocatable :: gzp,gzm,gsp,gsm
+real, dimension(:,:,:), allocatable :: gzpeq,gzmeq,gg2zpeq,gg2zmeq
 logical :: llast=.false.,lout=.false.,lsnap
 
 character(len=100) :: runname, inputfile
@@ -59,12 +60,36 @@ allocate(dum(nky,nkx_par,nlz_par))
 allocate(dum2(nky,nkx_par,nlz_par))
 
 allocate(rdum(nky,nkx_par,nlz_par))
+
+if (lequil) then
+    allocate(gzpeq(nlx,nly_par,2))
+    allocate(gzmeq(nlx,nly_par,2))
+    allocate(gg2zpeq(nlx,nly_par,2))
+    allocate(gg2zmeq(nlx,nly_par,2))
+endif
+
 call init_mp
 call init_grid
 call init_transforms
 
 call system_clock(cc,cr,cm)
 cr=uniran(init=cc)
+
+!*****Loading equilibrium field, if required. *****
+!Also getting pieces that are needed in the eq-pert interaction term.
+!TODO: check dummies are reset properly!
+if (lequil) then
+    call loadeq(equilpath,equilfile,zp(:,:,1),zm(:,:,1))
+    call fft(zp(:,:,1),zpk(:,:,1))
+    call grad2d(zpk(:,:,1),gzpeq)
+    call fft(zm(:,:,1),zmk(:,:,1))
+    call grad2d(zmk(:,:,1),gzmeq)
+    call multkn2d(zpk(:,:,1),dum(:,:,1))
+    call grad2d(dum(:,:,1),gg2zpeq)
+    call multkn2d(zmk(:,:,1),dum(:,:,1))
+    call grad2d(dum(:,:,1),gg2zmeq)
+endif
+
 
 !***** Setting initial fields, if required *****
 if (restart.eq.0) then
@@ -100,12 +125,6 @@ filename="start.dat"
 call savesnap(filename,zp,zm,t)
 
 !TODO: other initfield options, like "norm"
-
-!Loading equilibrium field, if required
-if (lequil) then
-    call loadeq(equilpath,equilfile,zpeq,zmeq)
-    
-    
 
 dt=1d10 !setting timestep to a large number
 !alfven speed=1, won't change:
