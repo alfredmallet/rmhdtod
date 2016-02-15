@@ -45,6 +45,13 @@ kimy=1d0
 kimz=1d0
 /
 
+&equil_parameters
+equilmode="func"
+equilfunc="sheet1"
+equilfile="equil.dat"
+equilpath=""
+/
+
 &force_parameters
 kfp1=1
 kfp2=2

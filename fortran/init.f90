@@ -25,7 +25,7 @@ real :: znu=0.0
 !start
 real :: ampzp=1.0,ampzm=0.5
 character(len=4) :: initfield="wave"
-character(len=100) :: equilfile="equil.dat",equilpath=""
+character(len=100) :: equilmode="func",equilfunc="sheet1",equilfile="equil.dat",equilpath=""
 real :: kipx=1.0,kipy=0.0,kipz=1.0,kimx=0.0,kimy=1.0,kimz=1.0
 !force
 real :: kfp1=1,kfp2=2,kfz1=1,kfz2=1,epsm=0.0,epsp=-1
@@ -64,6 +64,7 @@ subroutine read_parameters(inputfile)
     namelist /time_parameters/ tmax, imax,cfl_frac
     namelist /diss_parameters/ hyper_order,nu,znu
     namelist /start_parameters/ ampzp,ampzm,initfield,equil_file,kipx,kipy,kipz,kimx,kimy,kimz
+    namelist /equil_parameters/ equilmode,equilfunc,equilfile,equilpath
     namelist /force_parameters/ kfp1,kfp2,kfz1,kfz2,epsp,epsm
     namelist /output_parameters/ iout, ispec, isnap,tspec,tsnap,tsfile,datadir,llastsnap
     namelist /restart_parameters/ restart,rsfile,rspath,irsfile,itrs,rstime
@@ -79,6 +80,8 @@ subroutine read_parameters(inputfile)
         if (ierr/=0) write(*,*) "Reading diss_parameters failed"
     read(10,nml=start_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading start_parameters failed"
+    read(10,nml=equil_parameters,iostat=ierr)
+        if (ierr/=0) write(*,*) "Reading equil_parameters failed"
     read(10,nml=force_parameters,iostat=ierr)
         if (ierr/=0) write(*,*) "Reading force_parameters failed"
     read(10,nml=output_parameters,iostat=ierr)

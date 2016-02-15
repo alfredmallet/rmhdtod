@@ -79,7 +79,10 @@ cr=uniran(init=cc)
 !Also getting pieces that are needed in the eq-pert interaction term.
 !TODO: check dummies are reset properly!
 if (lequil) then
-    call loadeq(equilpath,equilfile,zp(:,:,1),zm(:,:,1))
+    if (equilmode="func") then
+        call makeeq(equilfunc,zp(:,:,1),zm(:,:,1))
+    else
+        call loadeq(equilfile,equilpath,zp(:,:,1),zm(:,:,1))
     call fft(zp(:,:,1),zpk(:,:,1))
     call grad2d(zpk(:,:,1),gzpeq)
     call fft(zm(:,:,1),zmk(:,:,1))
